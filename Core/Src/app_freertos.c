@@ -25,7 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "com.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -141,6 +142,8 @@ void LSM6DSOTR_Task(void *argument)
   /* Infinite loop */
   while(1)
   {
+    cprintf(&huart3, "ok\n");
+    vTaskDelay(10);
 
   }
   /* USER CODE END StartDefaultTask */
