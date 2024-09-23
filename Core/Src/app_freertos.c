@@ -48,11 +48,19 @@
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
+osThreadId_t LEDTaskHandle;
+osThreadId_t LSM6DSOTR_IMU_Handle;
+
+const osThreadAttr_t Lite_Task_attributes = {
   .name = "defaultTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
+  .stack_size = 256
+};
+
+const osThreadAttr_t Heavy_Task_attributes = {
+  .name = "defaultTask",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 2048
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,7 +68,8 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
+void LED_Task(void *argument);
+void LSM6DSOTR_Task(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -92,7 +101,8 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  LEDTaskHandle = osThreadNew(LED_Task, NULL, &Lite_Task_attributes);
+  LSM6DSOTR_IMU_Handle = osThreadNew(LSM6DSOTR_Task, NULL, &Heavy_Task_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -111,16 +121,27 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+void LED_Task(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-  for(;;)
+  while(1)
   {
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     vTaskDelay(1000);
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
     vTaskDelay(1000);
+  }
+  /* USER CODE END StartDefaultTask */
+}
+
+void LSM6DSOTR_Task(void *argument)
+{
+  /* USER CODE BEGIN StartDefaultTask */
+  /* Infinite loop */
+  while(1)
+  {
+
   }
   /* USER CODE END StartDefaultTask */
 }
