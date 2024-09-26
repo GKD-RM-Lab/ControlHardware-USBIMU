@@ -25,6 +25,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+/*
+LSM6D读取相关
+先测试，后期再整理
+*/
+#include "custom_mems_conf.h"
+#include "lsm6dso_reg.h"
+#include "lsm6dso.h"
+#include "com.h"
+#include "usart.h"
+#include "spi.h"
 
 /* USER CODE END Includes */
 
@@ -111,16 +121,75 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
+
+/*
+LSM6D读取相关
+先测试，后期再整理
+*/
+
+// SPI发送数据包装器函数
+int32_t SPI2_Send(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
+    // 在这里，'reg' 可能是寄存器的地址，可以在发送的数据前添加此地址
+    uint8_t data[Length + 1];  // 创建一个新的数组来包含寄存器地址和数据
+    data[0] = reg;             // 设置寄存器地址为第一个字节
+    memcpy(&data[1], pData, Length);  // 复制数据
+
+    // 使用BSP_SPI2_Send发送数据，忽略寄存器地址，因为大多数SPI设备会先发送地址
+    return BSP_SPI2_Send(data, Length + 1);
+}
+
+// SPI接收数据包装器函数
+int32_t SPI2_Recv(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
+    // 发送寄存器地址
+    BSP_SPI2_Send(&reg, 1);  // 先发送寄存器地址
+    // 接收数据
+    return BSP_SPI2_Recv(pData, Length);
+}
+
+
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+
+  if (BSP_SPI2_Init() != HAL_OK) {
+      cprintf(&huart3, "SPI2 INIT ERROR");
+  }
+  // LSM6D 驱动结构体配置
+  stmdev_ctx_t reg_ctx;
+  reg_ctx.write_reg = SPI2_Send;
+  reg_ctx.read_reg = SPI2_Recv;
+  reg_ctx.handle = &hspi2;
+
+  // 初始化LSM6DSO传感器
+  LSM6DSO_Object_t lsm6dso_obj;
+  lsm6dso_obj.Ctx = reg_ctx;
+  // if (LSM6DSO_Init(&lsm6dso_obj) != LSM6DSO_OK) {
+  //     Error_Handler();
+  // }
+  
+
   for(;;)
   {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-    vTaskDelay(1000);
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-    vTaskDelay(1000);
+    uint8_t id = 0;
+    // if (lsm6dso_device_id_get(&reg_ctx, &id) == 0) {
+    // }
+    //SPI TEST
+    uint8_t data[3] = {0x01, 0x02, 0x03};
+    while(1){
+      // SPI2_Send(&hspi2, 0x5A, data, 3);
+      HAL_SPI_Transmit(&hspi2, data, 3, 0xFF);
+      vTaskDelay(1);
+    }
+      //闪一次灯
+      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+      vTaskDelay(100);
+      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+      vTaskDelay(100);
+    // cprintf(&huart3, "%d\n", status);
+    // cprintf(&huart3, "ok\n");
+    HAL_UART_Transmit(&huart3, (uint8_t *)"ok\n", 4, 0xFFFF);
+
   }
   /* USER CODE END StartDefaultTask */
 }
