@@ -175,20 +175,21 @@ void StartDefaultTask(void *argument)
     // if (lsm6dso_device_id_get(&reg_ctx, &id) == 0) {
     // }
     //SPI TEST
-    uint8_t data[3] = {0x01, 0x02, 0x03};
-    while(1){
-      // SPI2_Send(&hspi2, 0x5A, data, 3);
-      HAL_SPI_Transmit(&hspi2, data, 3, 0xFF);
-      vTaskDelay(1);
-    }
+    // uint8_t data[5] = {0x01, 0x02, 0x03, 0x02, 0x03};
+    // volatile HAL_StatusTypeDef err_id =0;
+    // while(1){
+    //   // SPI2_Send(&hspi2, 0x5A, data, 3);
+    //   err_id = HAL_SPI_Transmit(&hspi2, data, 5, 0xFF);
+    //   vTaskDelay(1);
+    // }
       //闪一次灯
       HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
       vTaskDelay(100);
       HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
       vTaskDelay(100);
     // cprintf(&huart3, "%d\n", status);
-    // cprintf(&huart3, "ok\n");
-    HAL_UART_Transmit(&huart3, (uint8_t *)"ok\n", 4, 0xFFFF);
+    cprintf(&huart3, "ok\n");
+    // HAL_UART_Transmit(&huart3, (uint8_t *)"ok\n", 4, 0xFFFF);
 
   }
   /* USER CODE END StartDefaultTask */
