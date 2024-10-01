@@ -127,23 +127,39 @@ LSM6D读取相关
 先测试，后期再整理
 */
 
+int cs_en = 1;
+
 // SPI发送数据包装器函数
 int32_t SPI2_Send(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
-    // 在这里，'reg' 可能是寄存器的地址，可以在发送的数据前添加此地址
-    uint8_t data[Length + 1];  // 创建一个新的数组来包含寄存器地址和数据
-    data[0] = reg;             // 设置寄存器地址为第一个字节
-    memcpy(&data[1], pData, Length);  // 复制数据
+    if (Length > 128) {
+        return -1;
+    }
 
-    // 使用BSP_SPI2_Send发送数据，忽略寄存器地址，因为大多数SPI设备会先发送地址
-    return BSP_SPI2_Send(data, Length + 1);
+    uint8_t data[128 + 1];  
+    data[0] = (reg | 0x80);            // 设置寄存器地址为第一个字节
+    memcpy(&data[1], pData, Length);   // 复制数据
+
+    int err = 0;
+    if(cs_en) HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
+    err = BSP_SPI2_Send(data, Length + 1);
+    if(cs_en) HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
+
+    return err;
 }
 
 // SPI接收数据包装器函数
 int32_t SPI2_Recv(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
+    uint8_t dataReg = reg | 0x80; // 设置读位，假设MSB是读写控制位
+    
     // 发送寄存器地址
-    BSP_SPI2_Send(&reg, 1);  // 先发送寄存器地址
+    if(cs_en) HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
+    BSP_SPI2_Send(&dataReg, 1);  // 先发送寄存器地址
+    
     // 接收数据
-    return BSP_SPI2_Recv(pData, Length);
+    int err = 0;
+    err = BSP_SPI2_Recv(pData, Length);
+    if(cs_en) HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
+    return err;
 }
 
 
@@ -163,17 +179,33 @@ void StartDefaultTask(void *argument)
 
   // 初始化LSM6DSO传感器
   LSM6DSO_Object_t lsm6dso_obj;
+
   lsm6dso_obj.Ctx = reg_ctx;
+
   // if (LSM6DSO_Init(&lsm6dso_obj) != LSM6DSO_OK) {
-  //     Error_Handler();
+  //     // Error_Handler();
+  //     cprintf(&huart3, "LSM6D INIT ER\n");
+  // }else{
+  //     cprintf(&huart3, "LSM6D INIT OK\n");
   // }
   
 
   for(;;)
   {
-    uint8_t id = 0;
-    // if (lsm6dso_device_id_get(&reg_ctx, &id) == 0) {
-    // }
+    //尝试读取ID
+    uint8_t id = 114;
+    uint8_t reg_addr = 0x8F;
+    if (LSM6DSO_ReadID(&lsm6dso_obj, id) == 0) {
+      cprintf(&huart3, "id read ok, id = %d\n", id);
+    }else{
+      cprintf(&huart3, "id read fail\n");
+    }
+    // vTaskDelay(1);
+    // SPI2_Recv(&hspi2, 0x0F, &id, 1);
+    // HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
+    // BSP_SPI2_Send(&reg_addr, 1);
+    // BSP_SPI2_Recv(id, 1);
+    // HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
     //SPI TEST
     // uint8_t data[5] = {0x01, 0x02, 0x03, 0x02, 0x03};
     // volatile HAL_StatusTypeDef err_id =0;
@@ -184,11 +216,12 @@ void StartDefaultTask(void *argument)
     // }
       //闪一次灯
       HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-      vTaskDelay(100);
+      vTaskDelay(5);
       HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-      vTaskDelay(100);
+      vTaskDelay(5);
     // cprintf(&huart3, "%d\n", status);
-    cprintf(&huart3, "ok\n");
+    // cprintf(&huart3, "ok\n");
+
     // HAL_UART_Transmit(&huart3, (uint8_t *)"ok\n", 4, 0xFFFF);
 
   }
