@@ -9,11 +9,11 @@ void LSM6DSO_Task(void *argument)
     while (1)
     {
         cprintf(&huart3, "id = %x\n", IMU.checkid());
-
+        IMU.get_temperature();
         LSM6DSO_AxesRaw_t gyro_data;
         // LSM6DSO_GYRO_GetAxesRaw(&IMU.lsm6dso_obj, &gyro_data);
         // cprintf(&huart3, "Gyro X: %d, Y: %d, Z: %d\n", gyro_data.x, gyro_data.y, gyro_data.z);
-        cprintf(&huart3, "temperature:%d\n", IMU.get_temperature() * 1000);
+        cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
 
         vTaskDelay(100);
     }
@@ -87,35 +87,21 @@ LSM6DSO_Handle::~LSM6DSO_Handle()
 
 
 /********************SPI IO收发********************/
-int32_t SPI2_IOSend(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
-    if (Length > 128) {
-        return -1;
-    }
-
-    uint8_t data[128 + 1];  
-    data[0] = (reg | 0x80);            // 设置寄存器地址为第一个字节
-    memcpy(&data[1], pData, Length);   // 复制数据
-
-    int err = 0;
+int32_t SPI2_IOSend(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
-    err = BSP_SPI2_Send(data, Length + 1);
+    HAL_SPI_Transmit(&hspi2, &reg, 1, 1000);
+    HAL_SPI_Transmit(&hspi2, (uint8_t*) bufp, len, 1000);
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
-
-    return err;
+    return 0;
 }
 
-int32_t SPI2_IORecv(void *handle, uint8_t reg, uint8_t *pData, uint16_t Length) {
-    uint8_t dataReg = reg | 0x80; // 设置读位，假设MSB是读写控制位
-    
-    // 发送寄存器地址
+int32_t SPI2_IORecv(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
+    reg |= 0x80;
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
-    BSP_SPI2_Send(&dataReg, 1);  // 先发送寄存器地址
-    
-    // 接收数据
-    int err = 0;
-    err = BSP_SPI2_Recv(pData, Length);
+    HAL_SPI_Transmit(&hspi2, &reg, 1, 1000);
+    HAL_SPI_Receive(&hspi2, bufp, len, 1000);
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
-    return err;
+    return 0;
 }
 
 static void freertos_delay(uint32_t ms)
