@@ -31,7 +31,7 @@ private:
     int fusion_flag = 0;
     uint8_t mfxstate[2432];
 public:
-    float delta_time = 0.001;    //EKF计算周期(ms)
+    float delta_time = 0.1;    //EKF计算周期(ms)
 
     float Angle_fused[3];   //EFK融合输出的数据 {yaw, pitch, roll}
     void print_angle();     //输出EKF融合之后的欧拉角

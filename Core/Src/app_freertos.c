@@ -80,7 +80,7 @@ osThreadId_t EKF_TASK_Handle;
 const osThreadAttr_t EKF_TASK_attributes = {
   .name = "EKF task",
   .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 1024
+  .stack_size = 8192
 };
 /* USER CODE END FunctionPrototypes */
 
@@ -122,8 +122,8 @@ void MX_FREERTOS_Init(void) {
 
   //LSM6DSO Task
   LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
-  EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
   //EKF Task
+  EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
 
   
   /* USER CODE END RTOS_THREADS */

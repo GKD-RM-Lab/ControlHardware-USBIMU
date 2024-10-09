@@ -7,9 +7,10 @@ void EKF_fusion_Task(void *argument)
 {
     while (1)
     {
+        EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
         IMU.print_data();
-        // EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
-        // EKF.print_angle();
+        EKF.print_angle();
+        cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
         vTaskDelay((int)(EKF.delta_time * 1000));   //按照EKF计算周期延时
     }
     
@@ -50,7 +51,6 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
 
 EKF_fusion::EKF_fusion(/* args */)
 {
-    vTaskDelay(100);    //通过延迟，调过传感器起始不可靠的数据
 }
 
 EKF_fusion::~EKF_fusion()
