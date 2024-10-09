@@ -14,7 +14,7 @@ void LSM6DSO_Task(void *argument)
         IMU.update();
         // IMU.print_data();
         // IMU.plot_data();
-        vTaskDelay(1);
+        vTaskDelay(2);      //周期0.3ms，采样率约为3khz
 
     }
     

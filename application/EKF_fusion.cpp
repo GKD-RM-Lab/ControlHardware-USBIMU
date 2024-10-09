@@ -2,16 +2,17 @@
 #include "LSM6DSO_Task.hpp"
 
 
+EKF_fusion EKF;
 void EKF_fusion_Task(void *argument)
 {
-    EKF_fusion EKF;
+    EKF.init();
     while (1)
     {
         EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
-        IMU.print_data();
-        EKF.print_angle();
-        cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
-        vTaskDelay((int)(EKF.delta_time * 1000));   //按照EKF计算周期延时
+        vTaskDelay((int)(EKF.delta_time * 1000 * 10));   //按照EKF计算周期延时
+        // IMU.print_data();
+        // EKF.print_angle();
+        // cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
     }
     
 }
@@ -20,8 +21,9 @@ void EKF_fusion::print_angle()
 {
     cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d\n", (int)Angle_fused[0],
                     (int)Angle_fused[1], (int)Angle_fused[2]);
-}   
-//计算EKF
+} 
+
+/*计算EKF*/
 void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
 {
     // 读取IMU类中已有的传感器数据
@@ -50,9 +52,9 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
 }
 
 /*初始化EKF*/
-EKF_fusion::EKF_fusion(/* args */)
+void EKF_fusion::init()
 {
-    __CRC_CLK_ENABLE();
+    __CRC_CLK_ENABLE();     //确保CRC开启
     MotionFX_initialize((MFXState_t *)mfxstate);
     MotionFX_getKnobs(mfxstate, ipKnobs);
 
@@ -75,6 +77,3 @@ EKF_fusion::EKF_fusion(/* args */)
     MotionFX_enable_9X(mfxstate, MFX_ENGINE_DISABLE);
 }
 
-EKF_fusion::~EKF_fusion()
-{
-}
