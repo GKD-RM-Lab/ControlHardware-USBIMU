@@ -25,19 +25,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-/*
-LSM6D璇诲彇鐩稿叧
-鍏堟祴璇曪紝鍚庢湡鍐嶆暣鐞�
-*/
-#include "custom_mems_conf.h"
-#include "lsm6dso_reg.h"
-#include "lsm6dso.h"
-#include "com.h"
-#include "usart.h"
-#include "spi.h"
 
-/*妯″潡澶存枃浠�*/
+/*应用调用*/
 #include "LSM6DSO_Task.hpp"
+#include "EKF_fusion.hpp"
 
 /* USER CODE END Includes */
 
@@ -84,6 +75,13 @@ const osThreadAttr_t LSM6DSO_TASK_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
   .stack_size = 1024
 };
+/***************EKF Task***************/
+osThreadId_t EKF_TASK_Handle;
+const osThreadAttr_t EKF_TASK_attributes = {
+  .name = "EKF task",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 1024
+};
 /* USER CODE END FunctionPrototypes */
 
 
@@ -124,6 +122,9 @@ void MX_FREERTOS_Init(void) {
 
   //LSM6DSO Task
   LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
+  EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
+  //EKF Task
+
   
   /* USER CODE END RTOS_THREADS */
 

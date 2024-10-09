@@ -96,7 +96,8 @@ Core/Src/com.c
 
 # CPP sources
 CXX_SOURCES = \
-application/LSM6DSO_Task.cpp
+application/LSM6DSO_Task.cpp \
+application/EKF_fusion.cpp
 
 # ASM sources
 ASM_SOURCES =  \
@@ -168,7 +169,8 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
 -IX-CUBE-MEMS1/Target \
--IDrivers/BSP/Components/lsm6dso
+-IDrivers/BSP/Components/lsm6dso \
+-Ilibrary/MotionFX
 
 # CPP includes
 C_INCLUDES += \
@@ -197,6 +199,8 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
 # #float printf
 # LDFLAGS += -lc -lrdimon -u _printf_float
+LDFLAGS += -L./library/MotionFX -lMotionFX
+
 
 #######################################
 # LDFLAGS

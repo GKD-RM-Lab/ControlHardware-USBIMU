@@ -1,6 +1,5 @@
 #include "LSM6DSO_Task.hpp"
 
-
 LSM6DSO_Handle IMU;
 
 void LSM6DSO_Task(void *argument)
@@ -8,14 +7,25 @@ void LSM6DSO_Task(void *argument)
     IMU.begin();
     cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
     cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
+    /*以1KHZ的频率轮询获取数据*/
     while (1)
     {
-        if(!IMU.ready()) continue;
+        // if(!IMU.ready()) continue;
         IMU.update();
-        IMU.print_data();
+        // IMU.print_data();
+        // IMU.plot_data();
+        vTaskDelay(1);
 
     }
     
+}
+
+void LSM6DSO_Handle::plot_data()
+{
+    cprintf(&huart3, "%d,%d,%d,%d,%d,%d,%d\n", (int)IMU.angular_rate_mdps[0],
+                    (int)IMU.angular_rate_mdps[1], (int)IMU.angular_rate_mdps[2],
+                    (int)IMU.acceleration_mg[0], (int)IMU.acceleration_mg[1],
+                    (int)IMU.acceleration_mg[2], (int)IMU.temperature_degC);
 }
 
 void LSM6DSO_Handle::print_data()
@@ -104,7 +114,7 @@ void LSM6DSO_Handle::begin()
     /* Configure filtering chain(No aux interface)
     * Accelerometer - LPF1 + LPF2 path
     */
-    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_LP_ODR_DIV_100);
+    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_HP_PATH_DISABLE_ON_OUT);
     lsm6dso_xl_filter_lp2_set(&reg_ctx, PROPERTY_ENABLE);
 }
 

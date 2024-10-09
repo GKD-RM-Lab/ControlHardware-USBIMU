@@ -39,6 +39,7 @@ public:
     uint8_t whoamI, rst;
     
     /*工具函数*/
+    void plot_data();               //输出便于vofa+显示的数据
     void print_data();              //输出当前存储的数据
     void update();                  //更新数据
     float_t get_temperature();      //获取温度
@@ -50,8 +51,7 @@ public:
     ~LSM6DSO_Handle();
 };
 
-
-
+extern LSM6DSO_Handle IMU;
 
 #endif  // __cplusplus
 
