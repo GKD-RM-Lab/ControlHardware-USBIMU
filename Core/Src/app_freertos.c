@@ -36,6 +36,9 @@ LSM6D读取相关
 #include "usart.h"
 #include "spi.h"
 
+/*模块头文件*/
+#include "LSM6DSO_Task.hpp"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +70,13 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+/***************IMU Task***************/
+osThreadId_t LSM6DSO_TASK_Handle;
+const osThreadAttr_t LSM6DSO_TASK_attributes = {
+  .name = "lsm6dso task",
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 1024
+};
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -106,6 +115,10 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+
+  //LSM6DSO 处理线程
+  LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
+  
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -122,10 +135,10 @@ void MX_FREERTOS_Init(void) {
   */
 /* USER CODE END Header_StartDefaultTask */
 
-/*
+/************************************************************************************************
 LSM6D读取相关
 先测试，后期再整理
-*/
+************************************************************************************************/
 
 int cs_en = 1;
 /*默认传感器配置*/
@@ -305,6 +318,11 @@ void StartDefaultTask(void *argument)
   }
   /* USER CODE END StartDefaultTask */
 }
+
+/************************************************************************************************
+ * end of ism6dso test
+************************************************************************************************/
+
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
