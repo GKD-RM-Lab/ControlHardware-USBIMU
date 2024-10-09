@@ -148,9 +148,7 @@ lsm6dso_odr_xl_t acc_odr = LSM6DSO_XL_ODR_104Hz;
 lsm6dso_bdr_xl_t acc_batch_odr = LSM6DSO_XL_BATCHED_AT_104Hz;
 lsm6dso_odr_g_t gyro_odr = LSM6DSO_GY_ODR_104Hz;
 lsm6dso_bdr_gy_t gyro_batch_odr = LSM6DSO_GY_BATCHED_AT_104Hz;
-
 lsm6dso_shub_odr_t mag_sh_odr = LSM6DSO_SH_ODR_104Hz;
-
 int32_t fifo_size = 30;
 
 // SPI发送数据包装器函数
