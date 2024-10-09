@@ -117,7 +117,7 @@ void MX_FREERTOS_Init(void) {
   /* add threads, ... */
 
   //LSM6DSO 处理线程
-  LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
+  // LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
   
   /* USER CODE END RTOS_THREADS */
 
@@ -314,6 +314,8 @@ void StartDefaultTask(void *argument)
     LSM6DSO_Axes_t gyro_data;
     LSM6DSO_GYRO_GetAxes(&lsm6dso_obj, &gyro_data);
     cprintf(&huart3, "Gyro X: %d, Y: %d, Z: %d\n", gyro_data.x, gyro_data.y, gyro_data.z);
+    LSM6DSO_ReadID(&lsm6dso_obj, &id);
+    cprintf(&huart3, "id=%x\n", id);
     vTaskDelay(100);
   }
   /* USER CODE END StartDefaultTask */
