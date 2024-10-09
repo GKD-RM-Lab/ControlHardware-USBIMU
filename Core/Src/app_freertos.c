@@ -80,7 +80,7 @@ osThreadId_t EKF_TASK_Handle;
 const osThreadAttr_t EKF_TASK_attributes = {
   .name = "EKF task",
   .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 8192
+  .stack_size = 1024 * 10
 };
 /* USER CODE END FunctionPrototypes */
 

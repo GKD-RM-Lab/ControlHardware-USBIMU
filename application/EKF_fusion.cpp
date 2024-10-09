@@ -1,17 +1,19 @@
 #include "EKF_fusion.hpp"
 #include "LSM6DSO_Task.hpp"
 
-EKF_fusion EKF;
+// EKF_fusion EKF;
 
 void EKF_fusion_Task(void *argument)
 {
+
     while (1)
     {
         // EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
         // IMU.print_data();
-        EKF.print_angle();
-        cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
-        vTaskDelay((int)(EKF.delta_time * 1000));   //按照EKF计算周期延时
+        // EKF.print_angle();
+        // cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
+        // vTaskDelay((int)(EKF.delta_time * 1000));   //按照EKF计算周期延时
+        cprintf(&huart3, "ok\n");
     }
     
 }
@@ -33,8 +35,6 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     data_in.acc[1] = IMU.acceleration_mg[1] * FROM_MG_TO_G;
     data_in.acc[2] = IMU.acceleration_mg[2] * FROM_MG_TO_G;
     
-    cprintf(&huart3, "%d\n", (int)data_in.gyro[0]);
-
     // 不使用磁力计
     data_in.mag[0] = 0.0f;
     data_in.mag[1] = 0.0f;
@@ -54,6 +54,7 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
 /*初始化EKF*/
 EKF_fusion::EKF_fusion(/* args */)
 {
+    __CRC_CLK_ENABLE();
     MotionFX_initialize((MFXState_t *)mfxstate);
     MotionFX_getKnobs(mfxstate, ipKnobs);
 
