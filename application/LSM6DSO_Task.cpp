@@ -27,10 +27,10 @@ void LSM6DSO_Handle::print_data()
     cprintf(&huart3, "temperature:%d\n", (int)IMU.temperature_degC);
 }
 
-/*¸üĞÂLSM6DSOÊı¾İ*/
+/*æ›´æ–°LSM6DSOæ•°æ®*/
 void LSM6DSO_Handle::update()
 {
-    /*¼ÓËÙ¶È¼ÆÊı¾İ*/
+    /*åŠ é€Ÿåº¦è®¡æ•°æ®*/
     memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
     lsm6dso_acceleration_raw_get(&reg_ctx, data_raw_acceleration);
     acceleration_mg[0] =
@@ -40,7 +40,7 @@ void LSM6DSO_Handle::update()
     acceleration_mg[2] =
     lsm6dso_from_fs2_to_mg(data_raw_acceleration[2]);
     
-    /*½ÇËÙ¶È¼ÆÊı¾İ*/
+    /*è§’é€Ÿåº¦è®¡æ•°æ®*/
     memset(data_raw_angular_rate, 0x00, 3 * sizeof(int16_t));
     lsm6dso_angular_rate_raw_get(&reg_ctx, data_raw_angular_rate);
     angular_rate_mdps[0] =
@@ -50,12 +50,12 @@ void LSM6DSO_Handle::update()
     angular_rate_mdps[2] =
     lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[2]);
 
-    /*ÎÂ¶È¼ÆÊı¾İ*/
+    /*æ¸©åº¦è®¡æ•°æ®*/
     temperature_degC = IMU.get_temperature();
 
 }
 
-/*ÅĞ¶ÏÊı¾İÊÇ·ñ¾ÍÎ»*/
+/*åˆ¤æ–­æ•°æ®æ˜¯å¦å°±ä½*/
 int8_t LSM6DSO_Handle::ready()
 {
     uint8_t data_ready;
@@ -63,7 +63,7 @@ int8_t LSM6DSO_Handle::ready()
     return data_ready;
 }
 
-/*¶ÁÈ¡IMUÎÂ¶È´«¸ĞÆ÷*/
+/*è¯»å–IMUæ¸©åº¦ä¼ æ„Ÿå™¨*/
 float_t LSM6DSO_Handle::get_temperature()
 {
     float temperature_degC;
@@ -76,7 +76,7 @@ float_t LSM6DSO_Handle::get_temperature()
 }
 
 
-/*¶ÁÈ¡LSM6DSO ID*/
+/*è¯»å–LSM6DSO ID*/
 //return 1: error
 uint8_t LSM6DSO_Handle::checkid()
 {
@@ -87,7 +87,7 @@ uint8_t LSM6DSO_Handle::checkid()
     return id;
 }
 
-/*IMU ²ÎÊı³õÊ¼»¯&²ÉÑù¿ªÊ¼*/
+/*IMU å‚æ•°åˆå§‹åŒ–&é‡‡æ ·å¼€å§‹*/
 void LSM6DSO_Handle::begin()
 {
     LSM6DSO_Handle::reset();
@@ -121,7 +121,7 @@ void LSM6DSO_Handle::reset()
     } while (rst);
 }
 
-/*IMU SPI³õÊ¼»¯*/
+/*IMU SPIåˆå§‹åŒ–*/
 LSM6DSO_Handle::LSM6DSO_Handle(/* args */)
 {
     BSP_SPI2_Init();
@@ -137,7 +137,7 @@ LSM6DSO_Handle::~LSM6DSO_Handle()
 }
 
 
-/********************SPI IOÊÕ·¢********************/
+/********************SPI IOæ”¶å‘********************/
 int32_t SPI2_IOSend(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(&hspi2, &reg, 1, 1000);

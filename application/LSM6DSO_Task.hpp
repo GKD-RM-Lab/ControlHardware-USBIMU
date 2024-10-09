@@ -1,7 +1,7 @@
 #ifndef LSM6DSO_Task_H
 #define LSM6DSO_Task_H
 
-/*CPP¹¦ÄÜ²¿·Ö*/
+/*CPPåŠŸèƒ½éƒ¨åˆ†*/
 #ifdef __cplusplus
 //RTOS
 #include "FreeRTOS.h"
@@ -20,16 +20,16 @@
 class LSM6DSO_Handle
 {
 private:
-    /*Ä¬ÈÏ´«¸ĞÆ÷ÅäÖÃ*/
-    lsm6dso_odr_xl_t xl_odr_set = LSM6DSO_XL_ODR_6667Hz;    //¼ÓËÙ¶È¼Æ²ÉÑùÂÊ
-    lsm6dso_fs_xl_t xl_fullscale_set = LSM6DSO_2g;          //¼ÓËÙ¶È¼Æ×î´óÁ¿³Ì
-    lsm6dso_odr_g_t gyro_odr_set = LSM6DSO_GY_ODR_6667Hz;   //ÍÓÂİÒÇ²ÉÑùÂÊ
-    lsm6dso_fs_g_t gyro_fullscale_set = LSM6DSO_2000dps;    //ÍÓÂİÒÇ×î´óÁ¿³Ì
+    /*é»˜è®¤ä¼ æ„Ÿå™¨é…ç½®*/
+    lsm6dso_odr_xl_t xl_odr_set = LSM6DSO_XL_ODR_6667Hz;    //åŠ é€Ÿåº¦è®¡é‡‡æ ·ç‡
+    lsm6dso_fs_xl_t xl_fullscale_set = LSM6DSO_2g;          //åŠ é€Ÿåº¦è®¡æœ€å¤§é‡ç¨‹
+    lsm6dso_odr_g_t gyro_odr_set = LSM6DSO_GY_ODR_6667Hz;   //é™€èºä»ªé‡‡æ ·ç‡
+    lsm6dso_fs_g_t gyro_fullscale_set = LSM6DSO_2000dps;    //é™€èºä»ªæœ€å¤§é‡ç¨‹
 public:
-    /*Éè±¸¶ÔÏó*/
+    /*è®¾å¤‡å¯¹è±¡*/
     stmdev_ctx_t reg_ctx;
     LSM6DSO_Object_t lsm6dso_obj;
-    /*´«¸ĞÆ÷Êı¾İ*/
+    /*ä¼ æ„Ÿå™¨æ•°æ®*/
     int16_t data_raw_acceleration[3];
     int16_t data_raw_angular_rate[3];
     int16_t data_raw_temperature;
@@ -38,14 +38,14 @@ public:
     float temperature_degC;
     uint8_t whoamI, rst;
     
-    /*¹¤¾ßº¯Êı*/
-    void print_data();              //Êä³öµ±Ç°´æ´¢µÄÊı¾İ
-    void update();                  //¸üĞÂÊı¾İ
-    float_t get_temperature();      //»ñÈ¡ÎÂ¶È
-    int8_t ready();                 //ĞÂÊı¾İ¿É¶Á
-    void begin();                   //¿ªÊ¼²ÉÑù
-    void reset();                   //ÖØÖÃ
-    uint8_t checkid();              //¶ÁÈ¡IMU ID
+    /*å·¥å…·å‡½æ•°*/
+    void print_data();              //è¾“å‡ºå½“å‰å­˜å‚¨çš„æ•°æ®
+    void update();                  //æ›´æ–°æ•°æ®
+    float_t get_temperature();      //è·å–æ¸©åº¦
+    int8_t ready();                 //æ–°æ•°æ®å¯è¯»
+    void begin();                   //å¼€å§‹é‡‡æ ·
+    void reset();                   //é‡ç½®
+    uint8_t checkid();              //è¯»å–IMU ID
     LSM6DSO_Handle(/* args */);
     ~LSM6DSO_Handle();
 };
@@ -56,7 +56,7 @@ public:
 #endif  // __cplusplus
 
 
-/*FreeRTOSµÄµ÷ÓÃ½Ó¿Ú*/
+/*FreeRTOSçš„è°ƒç”¨æ¥å£*/
 #ifdef __cplusplus
 extern "C" {
 #endif
