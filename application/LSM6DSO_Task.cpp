@@ -6,18 +6,61 @@ LSM6DSO_Handle IMU;
 void LSM6DSO_Task(void *argument)
 {
     IMU.begin();
+    cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
+    cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
     while (1)
     {
-        cprintf(&huart3, "id = %x\n", IMU.checkid());
-        IMU.get_temperature();
-        LSM6DSO_AxesRaw_t gyro_data;
-        // LSM6DSO_GYRO_GetAxesRaw(&IMU.lsm6dso_obj, &gyro_data);
-        // cprintf(&huart3, "Gyro X: %d, Y: %d, Z: %d\n", gyro_data.x, gyro_data.y, gyro_data.z);
-        cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
+        if(!IMU.ready()) continue;
+        IMU.update();
+        IMU.print_data();
 
-        vTaskDelay(100);
     }
     
+}
+
+void LSM6DSO_Handle::print_data()
+{
+    cprintf(&huart3, "Gyro:%d, %d, %d(mdps)\n", (int)IMU.angular_rate_mdps[0],
+                    (int)IMU.angular_rate_mdps[1], (int)IMU.angular_rate_mdps[2]);
+    cprintf(&huart3, "Accel:%d, %d, %d(mg)\n", (int)IMU.acceleration_mg[0],
+                    (int)IMU.acceleration_mg[1], (int)IMU.acceleration_mg[2]);
+    cprintf(&huart3, "temperature:%d\n", (int)IMU.temperature_degC);
+}
+
+/*更新LSM6DSO数据*/
+void LSM6DSO_Handle::update()
+{
+    /*加速度计数据*/
+    memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
+    lsm6dso_acceleration_raw_get(&reg_ctx, data_raw_acceleration);
+    acceleration_mg[0] =
+    lsm6dso_from_fs2_to_mg(data_raw_acceleration[0]);
+    acceleration_mg[1] =
+    lsm6dso_from_fs2_to_mg(data_raw_acceleration[1]);
+    acceleration_mg[2] =
+    lsm6dso_from_fs2_to_mg(data_raw_acceleration[2]);
+    
+    /*角速度计数据*/
+    memset(data_raw_angular_rate, 0x00, 3 * sizeof(int16_t));
+    lsm6dso_angular_rate_raw_get(&reg_ctx, data_raw_angular_rate);
+    angular_rate_mdps[0] =
+    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[0]);
+    angular_rate_mdps[1] =
+    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[1]);
+    angular_rate_mdps[2] =
+    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[2]);
+
+    /*温度计数据*/
+    temperature_degC = IMU.get_temperature();
+
+}
+
+/*判断数据是否就位*/
+int8_t LSM6DSO_Handle::ready()
+{
+    uint8_t data_ready;
+    lsm6dso_temp_flag_data_ready_get(&reg_ctx, &data_ready);
+    return data_ready;
 }
 
 /*读取IMU温度传感器*/
@@ -48,13 +91,21 @@ uint8_t LSM6DSO_Handle::checkid()
 void LSM6DSO_Handle::begin()
 {
     LSM6DSO_Handle::reset();
-    /*禁用IMU*/
+    /* Disable I3C interface */
     lsm6dso_i3c_disable_set(&reg_ctx, LSM6DSO_I3C_DISABLE);
-    /*配置陀螺仪*/
-    LSM6DSO_GYRO_Enable(&lsm6dso_obj);
-    LSM6DSO_GYRO_SetOutputDataRate(&lsm6dso_obj, LSM6DSO_XL_ODR_833Hz);  // 设置ODR
-    LSM6DSO_GYRO_Set_Power_Mode(&lsm6dso_obj, LSM6DSO_GY_HIGH_PERFORMANCE);  // 设置高性能模式
-    LSM6DSO_GYRO_SetFullScale(&lsm6dso_obj, LSM6DSO_250dps);  // 设置陀螺仪的量程
+    /* Enable Block Data Update */
+    lsm6dso_block_data_update_set(&reg_ctx, PROPERTY_ENABLE);
+    /* Set Output Data Rate */
+    lsm6dso_xl_data_rate_set(&reg_ctx, xl_odr_set);
+    lsm6dso_gy_data_rate_set(&reg_ctx, gyro_odr_set);
+    /* Set full scale */
+    lsm6dso_xl_full_scale_set(&reg_ctx, xl_fullscale_set);
+    lsm6dso_gy_full_scale_set(&reg_ctx, gyro_fullscale_set);
+    /* Configure filtering chain(No aux interface)
+    * Accelerometer - LPF1 + LPF2 path
+    */
+    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_LP_ODR_DIV_100);
+    lsm6dso_xl_filter_lp2_set(&reg_ctx, PROPERTY_ENABLE);
 }
 
 
@@ -104,7 +155,7 @@ int32_t SPI2_IORecv(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
     return 0;
 }
 
-static void freertos_delay(uint32_t ms)
+void freertos_delay(uint32_t ms)
 {
     vTaskDelay(ms);
 }

@@ -195,6 +195,8 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # CPP
 CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
+# #float printf
+# LDFLAGS += -lc -lrdimon -u _printf_float
 
 #######################################
 # LDFLAGS
