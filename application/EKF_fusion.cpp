@@ -7,8 +7,8 @@ void EKF_fusion_Task(void *argument)
 {
     while (1)
     {
-        EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
-        IMU.print_data();
+        // EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
+        // IMU.print_data();
         EKF.print_angle();
         cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
         vTaskDelay((int)(EKF.delta_time * 1000));   //按照EKF计算周期延时
@@ -32,6 +32,8 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     data_in.acc[0] = IMU.acceleration_mg[0] * FROM_MG_TO_G;
     data_in.acc[1] = IMU.acceleration_mg[1] * FROM_MG_TO_G;
     data_in.acc[2] = IMU.acceleration_mg[2] * FROM_MG_TO_G;
+    
+    cprintf(&huart3, "%d\n", (int)data_in.gyro[0]);
 
     // 不使用磁力计
     data_in.mag[0] = 0.0f;
@@ -49,8 +51,29 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
         
 }
 
+/*初始化EKF*/
 EKF_fusion::EKF_fusion(/* args */)
 {
+    MotionFX_initialize((MFXState_t *)mfxstate);
+    MotionFX_getKnobs(mfxstate, ipKnobs);
+
+    ipKnobs->acc_orientation[0] = 's';
+    ipKnobs->acc_orientation[1] = 'e';
+    ipKnobs->acc_orientation[2] = 'u';
+    ipKnobs->gyro_orientation[0] = 's';
+    ipKnobs->gyro_orientation[1] = 'e';
+    ipKnobs->gyro_orientation[2] = 'u';
+
+    ipKnobs->gbias_acc_th_sc = GBIAS_ACC_TH_SC;
+    ipKnobs->gbias_gyro_th_sc = GBIAS_GYRO_TH_SC;
+
+    ipKnobs->output_type = MFX_ENGINE_OUTPUT_ENU;
+    ipKnobs->LMode = 1;
+    ipKnobs->modx = DECIMATION;
+
+    MotionFX_setKnobs(mfxstate, ipKnobs);
+    MotionFX_enable_6X(mfxstate, MFX_ENGINE_ENABLE);
+    MotionFX_enable_9X(mfxstate, MFX_ENGINE_DISABLE);
 }
 
 EKF_fusion::~EKF_fusion()

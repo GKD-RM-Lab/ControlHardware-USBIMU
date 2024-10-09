@@ -21,6 +21,15 @@
 #define FROM_MDPS_TO_DPS  0.001f
 #define FROM_DPS_TO_MDPS  1000.0f
 
+/*EKF参数宏*/
+#define STATE_SIZE                      (size_t)(2432)
+
+#define SAMPLETODISCARD                 15
+
+#define GBIAS_ACC_TH_SC                 (2.0f*0.000765f)
+#define GBIAS_GYRO_TH_SC                (2.0f*0.002f)
+
+#define DECIMATION                      1U
 
 class EKF_fusion
 {
@@ -30,6 +39,8 @@ private:
     MFX_output_t data_out;
     int fusion_flag = 0;
     uint8_t mfxstate[2432];
+    MFX_knobs_t iKnobs;
+    MFX_knobs_t *ipKnobs = &iKnobs;
 public:
     float delta_time = 0.1;    //EKF计算周期(ms)
 
