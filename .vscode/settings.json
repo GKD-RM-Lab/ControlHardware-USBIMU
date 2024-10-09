@@ -4,7 +4,8 @@
         "custom_bus.h": "c",
         "custom_conf.h": "c",
         "stm32g4xx_hal.h": "c",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "compare": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
