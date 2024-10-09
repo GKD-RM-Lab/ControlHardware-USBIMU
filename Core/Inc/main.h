@@ -81,10 +81,6 @@ void Error_Handler(void);
 #define LSM_INT2_GPIO_Port GPIOC
 #define LSM_INT1_Pin GPIO_PIN_8
 #define LSM_INT1_GPIO_Port GPIOA
-#define ADDR6_Pin GPIO_PIN_15
-#define ADDR6_GPIO_Port GPIOA
-#define ADDR5_Pin GPIO_PIN_10
-#define ADDR5_GPIO_Port GPIOC
 #define ADDR4_Pin GPIO_PIN_11
 #define ADDR4_GPIO_Port GPIOC
 #define ADDR3_Pin GPIO_PIN_3

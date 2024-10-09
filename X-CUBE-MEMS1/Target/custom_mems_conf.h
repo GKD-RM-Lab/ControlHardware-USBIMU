@@ -1,9 +1,8 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    spi.h
-  * @brief   This file contains all the function prototypes for
-  *          the spi.c file
+  * @file    custom_mems_conf.h
+  * @author  MEMS Software Solutions Team
+  * @brief   This file contains definitions of the MEMS components bus interfaces for custom boards
   ******************************************************************************
   * @attention
   *
@@ -16,37 +15,36 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPI_H__
-#define __SPI_H__
+#ifndef CUSTOM_MEMS_CONF_H
+#define CUSTOM_MEMS_CONF_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32g4xx_hal.h"
+#include "custom_bus.h"
+#include "custom_errno.h"
 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN 1 */
 
-/* USER CODE END Includes */
+/* USER CODE END 1 */
 
-extern SPI_HandleTypeDef hspi1;
+#define USE_CUSTOM_MOTION_SENSOR_LSM6DSO_0        0U
 
-/* USER CODE BEGIN Private defines */
+#define CUSTOM_LSM6DSO_0_SPI_Init BSP_SPI2_Init
+#define CUSTOM_LSM6DSO_0_SPI_DeInit BSP_SPI2_DeInit
+#define CUSTOM_LSM6DSO_0_SPI_Send BSP_SPI2_Send
+#define CUSTOM_LSM6DSO_0_SPI_Recv BSP_SPI2_Recv
 
-/* USER CODE END Private defines */
-
-void MX_SPI1_Init(void);
-
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
+#define CUSTOM_LSM6DSO_0_CS_PORT GPIOB
+#define CUSTOM_LSM6DSO_0_CS_PIN GPIO_PIN_12
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SPI_H__ */
-
+#endif /* CUSTOM_MEMS_CONF_H*/

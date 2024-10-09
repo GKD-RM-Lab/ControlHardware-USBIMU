@@ -1,27 +1,32 @@
-#ifndef COM_H_
-#define COM_H_
+#ifndef __COM_H__
+#define __COM_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include "ctype.h"
+#include "string.h"
 #include "stdarg.h"
 #include "stdio.h"
+#include "ctype.h"
+	
 #include "stm32g4xx_hal.h"
-#include "string.h"
 
-    extern int cprintf(void *p, const char *format, ...);
+extern int cprintf(void *p, const char *format, ...);
+	
+extern char cgetc(void *p);
+	
+extern void cgets(void *p, char *str, char end);
+	
+extern void cgets_s(void *p, char *str, int s);
+	
+extern void cgets(void *p, char *str, char end);
 
-    extern void cgets(void *p, char *str, char end);
+extern void receiveInit(UART_HandleTypeDef *p, void (*f)(const char *));
 
-    extern void cgets_s(void *p, char *str, int s);
+extern void receiveSet(UART_HandleTypeDef *p, void (*f)(const char *));
 
-    extern void cgets(void *p, char *str, char end);
-
-    extern char cgetc(void *p);
-
+extern void receiveStart(UART_HandleTypeDef *huart, int sz);
 
 #ifdef __cplusplus
 }
