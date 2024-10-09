@@ -3,6 +3,7 @@
         "custom_mems_conf.h": "c",
         "custom_bus.h": "c",
         "custom_conf.h": "c",
-        "stm32g4xx_hal.h": "c"
+        "stm32g4xx_hal.h": "c",
+        "iostream": "cpp"
     }
 }
