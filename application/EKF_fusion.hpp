@@ -46,6 +46,7 @@ public:
 
     float Angle_fused[3];   //EFK融合输出的数据 {yaw, pitch, roll}
     void print_angle();     //输出EKF融合之后的欧拉角
+    void plot_angle();
     void init();            //EKF初始化
     void caculate(float *acceleration_mg, float *angular_rate_mdps);        //计算EKF
 };

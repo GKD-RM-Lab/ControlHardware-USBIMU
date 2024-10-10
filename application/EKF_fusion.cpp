@@ -6,21 +6,44 @@ EKF_fusion EKF;
 void EKF_fusion_Task(void *argument)
 {
     EKF.init();
+    EKF.delta_time = 0.00025;    //周期设置为0.25ms，4000hz
     while (1)
     {
         EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
         vTaskDelay((int)(EKF.delta_time * 1000 * 10));   //按照EKF计算周期延时
         // IMU.print_data();
         // EKF.print_angle();
-        // cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000));
+        // cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000 * 10));
     }
     
 }
+
+//输出EKF融合之后的欧拉角，直接输出浮点，适配vofa+显示
+void EKF_fusion::plot_angle()
+{
+    typedef struct
+    {
+        float yaw;
+        float pitch;
+        float roll;
+        uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
+    }__attribute__((packed)) Frame_type;
+    Frame_type frame;
+
+    frame.yaw = Angle_fused[0];
+    frame.pitch = Angle_fused[1];
+    frame.roll = Angle_fused[2];
+
+    HAL_UART_Transmit(&huart3, (uint8_t *)&frame, sizeof(frame), HAL_MAX_DELAY);    
+
+} 
+
 //输出EKF融合之后的欧拉角
 void EKF_fusion::print_angle()
 {
-    cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d\n", (int)Angle_fused[0],
-                    (int)Angle_fused[1], (int)Angle_fused[2]);
+    int factor = 10;
+    cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d\n", (int)(Angle_fused[0]*factor),
+                    (int)(Angle_fused[1]*factor), (int)(Angle_fused[2]*factor));
 } 
 
 /*计算EKF*/

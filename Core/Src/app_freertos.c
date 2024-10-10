@@ -29,6 +29,7 @@
 /*应用调用*/
 #include "LSM6DSO_Task.hpp"
 #include "EKF_fusion.hpp"
+#include "USB_VCP_Task.hpp"
 
 /* USER CODE END Includes */
 
@@ -82,6 +83,13 @@ const osThreadAttr_t EKF_TASK_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 1024 * 4
 };
+/***************USB Task***************/
+osThreadId_t USB_TASK_Handle;
+const osThreadAttr_t USB_TASK_attributes = {
+  .name = "USB task",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 1024
+};
 /* USER CODE END FunctionPrototypes */
 
 
@@ -124,7 +132,8 @@ void MX_FREERTOS_Init(void) {
   LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
   //EKF Task
   EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
-
+  //USB Task
+  USB_TASK_Handle = osThreadNew(USB_VCP_Task, NULL, &USB_TASK_attributes);
   
   /* USER CODE END RTOS_THREADS */
 

@@ -37,7 +37,7 @@ int cprintf(void *p, const char *format, ...)
     va_start(ap, format);
 
     int res = vsprintf(COM_value, format, ap);
-    HAL_UART_Transmit(p, (uint8_t *) COM_value, res, 0xffff);
+    HAL_UART_Transmit_DMA(p, (uint8_t *) COM_value, res);
 
     return res;
 }
