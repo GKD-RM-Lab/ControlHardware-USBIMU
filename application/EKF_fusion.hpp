@@ -43,6 +43,7 @@ private:
     MFX_knobs_t *ipKnobs = &iKnobs;
 public:
     float delta_time = 0.001;    //EKF计算周期(ms)
+    uint32_t elapsed_time_us;    //上一次EFK计算耗时(us)
 
     float Angle_fused[3];   //EFK融合输出的数据 {yaw, pitch, roll}
     void print_angle();     //输出EKF融合之后的欧拉角

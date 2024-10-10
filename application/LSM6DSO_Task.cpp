@@ -2,16 +2,18 @@
 
 LSM6DSO_Handle IMU;
 
+
+/******* 不在此处单开线程读取IMU，IMU读取和EKF并入同一个线程 ********/
 void LSM6DSO_Task(void *argument)
 {
-    IMU.begin();
-    cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
-    cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
+    // IMU.begin();
+    // cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
+    // cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
     /*以1KHZ的频率轮询获取数据*/
     while (1)
     {
         // if(!IMU.ready()) continue;
-        IMU.update();
+        // IMU.update();
         // IMU.print_data();
         // IMU.plot_data();
         vTaskDelay(2);      //周期0.3ms，采样率约为3khz

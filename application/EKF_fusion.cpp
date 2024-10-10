@@ -2,23 +2,35 @@
 #include "LSM6DSO_Task.hpp"
 
 
+/*******用vTaskDelayUntil确保精确的执行周期********/
 EKF_fusion EKF;
 void EKF_fusion_Task(void *argument)
 {
-    EKF.delta_time = 0.001;    //周期设置为1ms，1000hz
+    EKF.delta_time = 0.001;    // 周期设置为1ms
     EKF.init();
+    IMU.begin();
+
+    //记录当前时间 & 执行周期转换成system tick
+    TickType_t xLastWakeTime;
+    const TickType_t xFrequency = EKF.delta_time * 1000 * 10;
+    xLastWakeTime = xTaskGetTickCount();
+
     while (1)
     {
+        IMU.update();
+
         EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
-        vTaskDelay((int)(EKF.delta_time * 1000 * 10));   //按照EKF计算周期延时
+        
+        // 使用vTaskDelayUntil来确保固定周期
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+
         // IMU.print_data();
         // EKF.print_angle();
         // cprintf(&huart3, "--->%d\n", (int)(EKF.delta_time * 1000 * 10));
     }
-    
 }
 
-//输出EKF融合之后的欧拉角，直接输出浮点，适配vofa+显示
+//输出EKF融合之后的欧拉角，直接输出包含浮点的字节流，适配vofa+显示
 void EKF_fusion::plot_angle()
 {
     typedef struct
@@ -42,13 +54,18 @@ void EKF_fusion::plot_angle()
 void EKF_fusion::print_angle()
 {
     int factor = 10;
-    cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d\n", (int)(Angle_fused[0]*factor),
-                    (int)(Angle_fused[1]*factor), (int)(Angle_fused[2]*factor));
+    cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d, time:%dus\n", (int)(Angle_fused[0]*factor),
+                    (int)(Angle_fused[1]*factor), (int)(Angle_fused[2]*factor), elapsed_time_us);
+    
 } 
 
 /*计算EKF*/
 void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
 {
+    //耗时统计 begin
+    TickType_t start_tick, end_tick;
+    start_tick = xTaskGetTickCount();
+
     // 读取IMU类中已有的传感器数据
     data_in.gyro[0] = IMU.angular_rate_mdps[0] * FROM_MDPS_TO_DPS;
     data_in.gyro[1] = IMU.angular_rate_mdps[1] * FROM_MDPS_TO_DPS;
@@ -72,9 +89,9 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
         Angle_fused[i] = data_out.rotation[i];
     }
 
-    /*Yaw的输出很奇怪，这样处理之后就正常了但不知道为什么（？*/
-    if(Angle_fused[0] > 180.0) Angle_fused[0] = Angle_fused[0] - 180.0;
-    Angle_fused[0] *= 2.0;
+    //耗时统计 end
+    end_tick = xTaskGetTickCount();
+    elapsed_time_us = (end_tick - start_tick) * 100;
         
 }
 
