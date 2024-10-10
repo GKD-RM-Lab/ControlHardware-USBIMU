@@ -24,10 +24,28 @@ void LSM6DSO_Task(void *argument)
 
 void LSM6DSO_Handle::plot_data()
 {
-    cprintf(&huart3, "%d,%d,%d,%d,%d,%d,%d\n", (int)IMU.angular_rate_mdps[0],
-                    (int)IMU.angular_rate_mdps[1], (int)IMU.angular_rate_mdps[2],
-                    (int)IMU.acceleration_mg[0], (int)IMU.acceleration_mg[1],
-                    (int)IMU.acceleration_mg[2], (int)IMU.temperature_degC);
+    typedef struct
+    {
+        float v_yaw;
+        float v_pitch;
+        float v_roll;
+        float ax;
+        float ay;
+        float az;
+        uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
+    }__attribute__((packed)) Frame_type;
+    Frame_type frame;
+
+    frame.v_yaw = angular_rate_mdps[0];
+    frame.v_pitch = angular_rate_mdps[1];
+    frame.v_roll = angular_rate_mdps[2];
+
+    frame.ax = acceleration_mg[0];
+    frame.ay = acceleration_mg[1];
+    frame.az = acceleration_mg[2];
+
+    HAL_UART_Transmit(&huart3, (uint8_t *)&frame, sizeof(frame), HAL_MAX_DELAY);    
+
 }
 
 void LSM6DSO_Handle::print_data()
