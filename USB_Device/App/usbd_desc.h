@@ -107,7 +107,7 @@
 extern USBD_DescriptorsTypeDef     CDC_Desc;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-
+extern uint8_t USBD_CDC_DeviceDesc[USB_LEN_DEV_DESC];
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**

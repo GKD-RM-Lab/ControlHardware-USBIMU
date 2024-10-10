@@ -134,7 +134,7 @@ void LSM6DSO_Handle::begin()
     /* Configure filtering chain(No aux interface)
     * Accelerometer - LPF1 + LPF2 path
     */
-    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_HP_PATH_DISABLE_ON_OUT);
+    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_LP_ODR_DIV_10);
     lsm6dso_xl_filter_lp2_set(&reg_ctx, PROPERTY_ENABLE);
 }
 

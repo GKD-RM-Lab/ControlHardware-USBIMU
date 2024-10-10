@@ -83,10 +83,19 @@ const osThreadAttr_t EKF_TASK_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 1024 * 4
 };
-/***************USB Task***************/
-osThreadId_t USB_TASK_Handle;
-const osThreadAttr_t USB_TASK_attributes = {
-  .name = "USB task",
+/***************USB RX Task***************/
+//低优先级 但不主动释放资源 在cpu空闲的时候处理接受缓冲区中的数据
+osThreadId_t USB_RX_TASK_Handle;
+const osThreadAttr_t USB_RX_TASK_attributes = {
+  .name = "USB RX task",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 1024
+};
+/***************USB RX Task***************/
+//高优先级 1khz频率运行
+osThreadId_t USB_TX_TASK_Handle;
+const osThreadAttr_t USB_TX_TASK_attributes = {
+  .name = "USB TX task",
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 1024
 };
@@ -132,9 +141,11 @@ void MX_FREERTOS_Init(void) {
   LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
   //EKF Task
   EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
-  //USB Task
-  USB_TASK_Handle = osThreadNew(USB_VCP_Task, NULL, &USB_TASK_attributes);
-  
+  //USB TX Task
+  USB_TX_TASK_Handle = osThreadNew(USB_VCP_TX_Task, NULL, &USB_TX_TASK_attributes);
+  //USB RX Task
+  USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
