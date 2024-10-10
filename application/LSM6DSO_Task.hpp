@@ -22,7 +22,7 @@ class LSM6DSO_Handle
 private:
     /*默认传感器配置*/
     lsm6dso_odr_xl_t xl_odr_set = LSM6DSO_XL_ODR_6667Hz;    //加速度计采样率
-    lsm6dso_fs_xl_t xl_fullscale_set = LSM6DSO_2g;          //加速度计最大量程
+    lsm6dso_fs_xl_t xl_fullscale_set = LSM6DSO_4g;          //加速度计最大量程
     lsm6dso_odr_g_t gyro_odr_set = LSM6DSO_GY_ODR_6667Hz;   //陀螺仪采样率
     lsm6dso_fs_g_t gyro_fullscale_set = LSM6DSO_2000dps;    //陀螺仪最大量程
 public:

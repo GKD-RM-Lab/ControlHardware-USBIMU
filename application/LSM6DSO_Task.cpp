@@ -44,11 +44,11 @@ void LSM6DSO_Handle::update()
     memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
     lsm6dso_acceleration_raw_get(&reg_ctx, data_raw_acceleration);
     acceleration_mg[0] =
-    lsm6dso_from_fs2_to_mg(data_raw_acceleration[0]);
+    lsm6dso_from_fs4_to_mg(data_raw_acceleration[0]);
     acceleration_mg[1] =
-    lsm6dso_from_fs2_to_mg(data_raw_acceleration[1]);
+    lsm6dso_from_fs4_to_mg(data_raw_acceleration[1]);
     acceleration_mg[2] =
-    lsm6dso_from_fs2_to_mg(data_raw_acceleration[2]);
+    lsm6dso_from_fs4_to_mg(data_raw_acceleration[2]);
     
     /*角速度计数据*/
     memset(data_raw_angular_rate, 0x00, 3 * sizeof(int16_t));

@@ -5,8 +5,8 @@
 EKF_fusion EKF;
 void EKF_fusion_Task(void *argument)
 {
+    EKF.delta_time = 0.001;    //周期设置为1ms，1000hz
     EKF.init();
-    EKF.delta_time = 0.00025;    //周期设置为0.25ms，4000hz
     while (1)
     {
         EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
@@ -71,6 +71,10 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     for(int i=0; i<3; i++){
         Angle_fused[i] = data_out.rotation[i];
     }
+
+    /*Yaw的输出很奇怪，这样处理之后就正常了但不知道为什么（？*/
+    if(Angle_fused[0] > 180.0) Angle_fused[0] = Angle_fused[0] - 180.0;
+    Angle_fused[0] *= 2.0;
         
 }
 
