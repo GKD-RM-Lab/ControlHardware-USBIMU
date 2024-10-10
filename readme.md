@@ -115,7 +115,7 @@ typedef struct
 
 - `LSM6DSO_Task.cpp`：负责维护和读取 LSM6DSO 和 MMC5603 的加速度计、角速度和地磁仪数据。
 - `EKF_fusion.cpp`：负责将读取到的 9 轴传感器数据通过 EKF 融合成稳定的欧拉角。
-    - STM32G431 运行一次 EKF 融合需要 600us，理论上回报率可以达到 1.6kHz，默认 IMU 回报率为 1kHz。
+    - STM32G431 在168MHZ下运行一次 EKF 融合需要 600us，理论上回报率可以达到 1.6kHz，默认 IMU 回报率为 1kHz。
 - `USB_VCP_Task.cpp`：负责维护 USB 虚拟串口。
 
 进程调度位于 `Core/Src/app_freertos.c` 中。
