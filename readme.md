@@ -135,6 +135,8 @@ RTOS 线程的创建位于 `Core/Src/app_freertos.c`。
 
 USB 虚拟串口的接收使用中断调度，原始回调函数位于 `USB_Device/App/usbd_cdc_if.c` 的 `CDC_Receive_FS`，并重定向到 `application/USB_VCP_Task.cpp` 中。
 
+需要注意的是，FreeRTOS的的SystemTick频率被修改成了10000hz，所以`vTaskDelay(1)`对应的是`0.1ms`而不是常规的`1ms`。
+
 ## TODO
 - 地磁仪的读取和EKF融合
   - 先考虑MMC5603的兼容

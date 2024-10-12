@@ -10,6 +10,8 @@ void EKF_fusion_Task(void *argument)
     EKF.init();
     IMU.begin();
 
+    vTaskDelay(1000);        //等待IMU初始化完成
+
     //记录当前时间 & 执行周期转换成system tick
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = EKF.delta_time * 1000 * 10;
