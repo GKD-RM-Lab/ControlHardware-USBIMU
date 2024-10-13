@@ -5,7 +5,9 @@
 #ifndef MOTION_F411_LSM6D_SH_MAG_H
 #define MOTION_F411_LSM6D_SH_MAG_H
 
-#include <cstdint>
+#define USE_MAG_MMC5603NJ
+
+// #include <cstdint>
 
 // #include "../conf.h"
 // #include "../Util/lwutil.h"
@@ -17,6 +19,8 @@
 #elif defined(USE_MAG_RM3100)
 #include "sh_rm3100.h"
 #endif
+
+#ifdef __cplusplus
 
 class Lsm6d_sh_mag {
 public:
@@ -48,5 +52,7 @@ protected:
 #endif
 
 };
+
+#endif //__cplusplus
 
 #endif //MOTION_F411_LSM6D_SH_MAG_H

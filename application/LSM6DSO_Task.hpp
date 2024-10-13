@@ -14,7 +14,8 @@
 #include "lsm6dso_reg.h"
 #include "lsm6dso.h"
 #include "spi.h"
-
+//sh driver
+#include "sh_mag.h"
 
 /*CPP功能部分*/
 #ifdef __cplusplus
@@ -29,6 +30,16 @@ typedef union {
     uint8_t u8bit[4];  
 } time_stamp;
 
+/***** SH 地磁仪类 *****/
+class MagDevice : public Lsm6d_sh_mag {
+public:
+    stmdev_ctx_t reg_ctx;
+    uint8_t SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) override;
+    uint8_t SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) override;
+};
+
+
+/***** IMU类 *****/
 class LSM6DSO_Handle
 {
 private:

@@ -1,11 +1,12 @@
 #include "LSM6DSO_Task.hpp"
 
 LSM6DSO_Handle IMU;
-
+MagDevice MAG;
 
 /******* 不在此处单开线程读取IMU，IMU读取和EKF并入同一个线程 ********/
 void LSM6DSO_Task(void *argument)
 {
+    MAG.reg_ctx = IMU.reg_ctx;  //初始化地磁仪的reg_ctx
     IMU.begin();
     // cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
     // cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
@@ -169,6 +170,10 @@ void LSM6DSO_Handle::begin()
     LSM6DSO_Handle::reset();
     /* Disable I3C interface */
     lsm6dso_i3c_disable_set(&reg_ctx, LSM6DSO_I3C_DISABLE);
+    
+    /* Configure magnetometer */
+    // MAG.setupMag();
+    
     /* Enable Block Data Update */
     lsm6dso_block_data_update_set(&reg_ctx, PROPERTY_ENABLE);
     
@@ -248,6 +253,80 @@ int32_t SPI2_IORecv(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
     HAL_SPI_Receive(&hspi2, bufp, len, 1000);
     HAL_GPIO_WritePin(LSM_CS_GPIO_Port, LSM_CS_Pin, GPIO_PIN_SET);
     return 0;
+}
+
+/********************Sensor Hub IO收发********************/
+uint8_t MagDevice::SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) {
+    int16_t dummy[3];
+    int32_t ret;
+    uint8_t drdy;
+    lsm6dso_status_master_t master_status;
+    lsm6dso_sh_cfg_write_t sh_cfg_write;
+    /* Configure Sensor Hub to write sh slave. */
+    sh_cfg_write.slv0_add = MMC5603NJ_I2C_ADDRESS;
+    sh_cfg_write.slv0_subadd = reg,
+    sh_cfg_write.slv0_data = *buf,
+    ret = lsm6dso_sh_cfg_write(&reg_ctx, &sh_cfg_write);
+    /* Disable accelerometer. */
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_OFF);
+    /* Enable I2C Master. */
+    lsm6dso_sh_master_set(&reg_ctx, PROPERTY_ENABLE);
+    /* Enable accelerometer to trigger Sensor Hub operation. */
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_104Hz);
+    /* Wait Sensor Hub operation flag set. */
+    lsm6dso_acceleration_raw_get(&reg_ctx, dummy);
+
+    do {
+        vTaskDelay(10);
+        lsm6dso_xl_flag_data_ready_get(&reg_ctx, &drdy);
+    } while (!drdy);
+
+    do {
+        lsm6dso_sh_status_get(&reg_ctx, &master_status);
+    } while (!master_status.sens_hub_endop);
+
+    /* Disable I2C master and XL (trigger). */
+    lsm6dso_sh_master_set(&reg_ctx, PROPERTY_DISABLE);
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_OFF);
+    return ret;
+}
+
+uint8_t MagDevice::SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) {
+    lsm6dso_sh_cfg_read_t sh_cfg_read;
+    int16_t dummy[3];
+    int32_t ret;
+    uint8_t drdy;
+    lsm6dso_status_master_t master_status;
+    /* Disable accelerometer. */
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_OFF);
+    /* Configure Sensor Hub to read sh slave. */
+    sh_cfg_read.slv_add = MMC5603NJ_I2C_ADDRESS;
+    sh_cfg_read.slv_subadd = reg;
+    sh_cfg_read.slv_len = num;
+    ret = lsm6dso_sh_slv_cfg_read(&reg_ctx, 0, &sh_cfg_read);
+    lsm6dso_sh_slave_connected_set(&reg_ctx, LSM6DSO_SLV_0);
+    /* Enable I2C Master and I2C master. */
+    lsm6dso_sh_master_set(&reg_ctx, PROPERTY_ENABLE);
+    /* Enable accelerometer to trigger Sensor Hub operation. */
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_104Hz);
+    /* Wait Sensor Hub operation flag set. */
+    lsm6dso_acceleration_raw_get(&reg_ctx, dummy);
+
+    do {
+        vTaskDelay(10);
+        lsm6dso_xl_flag_data_ready_get(&reg_ctx, &drdy);
+    } while (!drdy);
+
+    do {
+        lsm6dso_sh_status_get(&reg_ctx, &master_status);
+    } while (!master_status.sens_hub_endop);
+
+    /* Disable I2C master and XL(trigger). */
+    lsm6dso_sh_master_set(&reg_ctx, PROPERTY_DISABLE);
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_OFF);
+    /* Read SensorHub registers. */
+    lsm6dso_sh_read_data_raw_get(&reg_ctx, buf, num);
+    return ret;
 }
 
 void freertos_delay(uint32_t ms)

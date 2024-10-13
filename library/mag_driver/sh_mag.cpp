@@ -4,6 +4,11 @@
 
 #include "sh_mag.h"
 #include "stm32g4xx_hal.h"
+//RTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
 
 int32_t Lsm6d_sh_mag::getMagDevId() {
 #if defined(USE_MAG_AKM09918C)
@@ -33,7 +38,7 @@ void Lsm6d_sh_mag::setupMag() {
     SH_IO_Write((uint8_t *) AK09918_SRST_BIT, AK09918_CNTL3, 1);
 
     // The power on time is 50ms.
-    HAL_Delay(60);
+    vTaskDelay(600);
 
     /* power down */
     // SH_IO_Write((uint8_t *) AK09918_POWER_DOWN, AK09918_CNTL2, 1); // after reset, it should always be power down
@@ -46,7 +51,7 @@ void Lsm6d_sh_mag::setupMag() {
     SH_IO_Write((uint8_t *) MMC5603NJ_CMD_SW_RST, MMC5603NJ_CONTROL_1, 1);
 
     // The power on time is 20ms.
-    HAL_Delay(25);
+    vTaskDelay(250);
 
     // TODO: set bandwidth?
 
