@@ -7,7 +7,8 @@
         "iostream": "cpp",
         "compare": "cpp",
         "tim.h": "c",
-        "usbd_desc.h": "c"
+        "usbd_desc.h": "c",
+        "cstdint": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

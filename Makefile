@@ -103,7 +103,8 @@ CXX_SOURCES = \
 application/LSM6DSO_Task.cpp \
 application/EKF_fusion.cpp \
 application/USB_VCP_Task.cpp \
-application/LED_Task.cpp
+application/LED_Task.cpp \
+library/mag_driver/sh_mag.cpp
 
 # ASM sources
 ASM_SOURCES =  \
@@ -176,7 +177,8 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
 -IX-CUBE-MEMS1/Target \
 -IDrivers/BSP/Components/lsm6dso \
--IMiddlewares/ST/STM32_MotionFX_Library/Inc
+-IMiddlewares/ST/STM32_MotionFX_Library/Inc \
+-Ilibrary/mag_driver
 
 # CPP includes
 C_INCLUDES += \
@@ -188,7 +190,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 # CPP
-CXXFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CXXFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -std=c++11
 
 
 ifeq ($(DEBUG), 1)
