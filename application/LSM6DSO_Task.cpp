@@ -1,12 +1,10 @@
 #include "LSM6DSO_Task.hpp"
 
 LSM6DSO_Handle IMU;
-MagDevice MAG;
 
 /******* 不在此处单开线程读取IMU，IMU读取和EKF并入同一个线程 ********/
 void LSM6DSO_Task(void *argument)
 {
-    MAG.reg_ctx = IMU.reg_ctx;  //初始化地磁仪的reg_ctx
     IMU.begin();
     // cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
     // cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
@@ -55,6 +53,9 @@ void LSM6DSO_Handle::print_data()
     vTaskDelay(10);
     cprintf(&huart3, "Accel:\t%d,\t %d,\t %d\t(mg)\n", (int)IMU.acceleration_mg[0],
                     (int)IMU.acceleration_mg[1], (int)IMU.acceleration_mg[2]);
+    vTaskDelay(10);
+    cprintf(&huart3, "Mag:\t%d,\t %d,\t %d\t(mG)\n", (int)IMU.magnetic_mG[0],
+                    (int)IMU.magnetic_mG[1], (int)IMU.magnetic_mG[2]);             
     vTaskDelay(10);
     cprintf(&huart3, "temperature:%d\n", (int)IMU.temperature_degC);
     // vTaskDelay(10);
@@ -109,6 +110,17 @@ void LSM6DSO_Handle::update()
                 lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
                 angular_rate_mdps[2] =
                 lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
+                break;
+
+            case LSM6DSO_SENSORHUB_SLAVE0_TAG:
+                memset(data_raw_magnetic.u8bit, 0x00, 3 * sizeof(int16_t));
+                lsm6dso_fifo_out_raw_get(&reg_ctx, data_raw_magnetic.u8bit);
+            
+                magnetic_mG[0] = normalizeRawMag(data_raw_magnetic.i16bit[0]);
+                magnetic_mG[1] = normalizeRawMag(data_raw_magnetic.i16bit[1]);
+                magnetic_mG[2] = normalizeRawMag(data_raw_magnetic.i16bit[2]);
+
+                // has_new_mag = true;
                 break;
 
             /* 时间戳获取 */
@@ -172,7 +184,7 @@ void LSM6DSO_Handle::begin()
     lsm6dso_i3c_disable_set(&reg_ctx, LSM6DSO_I3C_DISABLE);
     
     /* Configure magnetometer */
-    // MAG.setupMag();
+    setupMag();
     
     /* Enable Block Data Update */
     lsm6dso_block_data_update_set(&reg_ctx, PROPERTY_ENABLE);
@@ -206,6 +218,24 @@ void LSM6DSO_Handle::begin()
     /* 时间戳 */
     lsm6dso_fifo_timestamp_decimation_set(&reg_ctx, LSM6DSO_DEC_1);
 
+    /* SH Mag */
+    /* Enable FIFO batching of Slave0. ODR batching is 104 Hz. */
+    lsm6dso_sh_batch_slave_set(&reg_ctx, 0, PROPERTY_ENABLE);
+    lsm6dso_sh_data_rate_set(&reg_ctx, LSM6DSO_SH_ODR_104Hz);
+
+    /* Prepare sensor hub to read data from external Slave0 continuously in order to store data in FIFO. */
+    lsm6dso_sh_cfg_read_t sh_cfg_read;
+
+    sh_cfg_read.slv_add = SH_IIC_ADDRESS;
+    sh_cfg_read.slv_subadd = SH_MAG_XOUT_ADDR;
+    sh_cfg_read.slv_len = SH_MAG_XOUT_LEN;
+
+    lsm6dso_sh_slv_cfg_read(&reg_ctx, 0, &sh_cfg_read);
+
+    /* Configure Sensor Hub to read one slave. */
+    lsm6dso_sh_slave_connected_set(&reg_ctx, LSM6DSO_SLV_0);
+    /* Enable I2C Master. */
+    lsm6dso_sh_master_set(&reg_ctx, PROPERTY_ENABLE);
 }
 
 
@@ -256,7 +286,7 @@ int32_t SPI2_IORecv(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len) {
 }
 
 /********************Sensor Hub IO收发********************/
-uint8_t MagDevice::SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) {
+uint8_t LSM6DSO_Handle::SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) {
     int16_t dummy[3];
     int32_t ret;
     uint8_t drdy;
@@ -291,7 +321,7 @@ uint8_t MagDevice::SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) {
     return ret;
 }
 
-uint8_t MagDevice::SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) {
+uint8_t LSM6DSO_Handle::SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) {
     lsm6dso_sh_cfg_read_t sh_cfg_read;
     int16_t dummy[3];
     int32_t ret;

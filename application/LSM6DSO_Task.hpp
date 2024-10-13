@@ -30,17 +30,9 @@ typedef union {
     uint8_t u8bit[4];  
 } time_stamp;
 
-/***** SH 地磁仪类 *****/
-class MagDevice : public Lsm6d_sh_mag {
-public:
-    stmdev_ctx_t reg_ctx;
-    uint8_t SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) override;
-    uint8_t SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) override;
-};
-
 
 /***** IMU类 *****/
-class LSM6DSO_Handle
+class LSM6DSO_Handle : Lsm6d_sh_mag
 {
 private:
     /*默认传感器配置*/
@@ -55,15 +47,21 @@ public:
     /*传感器数据*/
     axis3bit16_t data_raw_acceleration{};
     axis3bit16_t data_raw_angular_rate{};
+    axis3bit16_t data_raw_magnetic{};
     int16_t data_raw_temperature;
     float acceleration_mg[3];
     float angular_rate_mdps[3];
+    float magnetic_mG[3]{};
     float temperature_degC;
     uint8_t whoamI, rst;
     time_stamp this_timestamp;    //数据时间戳
     time_stamp last_timestamp;
     
-    /*工具函数*/
+    /* SH收发 */
+    uint8_t SH_IO_Write(uint8_t *buf, uint8_t reg, uint16_t num) override;
+    uint8_t SH_IO_Read(uint8_t *buf, uint8_t reg, uint16_t num) override;
+
+    /* 工具函数 */
     void plot_data();               //输出便于vofa+显示的数据
     void print_data();              //输出当前存储的数据
     void update();                  //更新数据

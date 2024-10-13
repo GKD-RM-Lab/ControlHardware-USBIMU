@@ -22,7 +22,7 @@ void USB_VCP_TX_Task(void *argument)
     while (1)
     {
         // Usb.imu_angle_send(EKF.Angle_fused);
-        vTaskDelay(100);         //1khz
+        vTaskDelay(10 * 10);         //1khz
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
         EKF.plot_angle();
         // IMU.plot_data();
