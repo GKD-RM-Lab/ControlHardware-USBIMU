@@ -56,6 +56,8 @@ void LSM6DSO_Handle::print_data()
                     (int)IMU.acceleration_mg[1], (int)IMU.acceleration_mg[2]);
     vTaskDelay(10);
     cprintf(&huart3, "temperature:%d\n", (int)IMU.temperature_degC);
+    // vTaskDelay(10);
+    // cprintf(&huart3, "delta time:%d\n", (int)this_timestamp.i32bit);
 }
 
 /*更新LSM6DSO数据*/
@@ -107,6 +109,12 @@ void LSM6DSO_Handle::update()
                 angular_rate_mdps[2] =
                 lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
                 break;
+
+            /* 时间戳获取 */
+            case LSM6DSO_TIMESTAMP_TAG:
+                memset(this_timestamp.u8bit, 0x00, sizeof(int32_t));
+                lsm6dso_fifo_out_raw_get(&reg_ctx, this_timestamp.u8bit);
+                
 
             default:
                 /* Flush unused samples */
@@ -180,16 +188,18 @@ void LSM6DSO_Handle::begin()
     */
     lsm6dso_fifo_watermark_set(&reg_ctx, 1);
     /* Set FIFO batch XL/Gyro ODR */
-    lsm6dso_fifo_xl_batch_set(&reg_ctx, LSM6DSO_XL_BATCHED_AT_1667Hz);
-    lsm6dso_fifo_gy_batch_set(&reg_ctx, LSM6DSO_GY_BATCHED_AT_6667Hz);
+    lsm6dso_fifo_xl_batch_set(&reg_ctx, LSM6DSO_XL_BATCHED_AT_833Hz);
+    lsm6dso_fifo_gy_batch_set(&reg_ctx, LSM6DSO_GY_BATCHED_AT_833Hz);
     /* Set FIFO mode to Stream mode (aka Continuous Mode) */
     /* flush any previous value in FIFO before start */
     lsm6dso_fifo_mode_set(&reg_ctx, LSM6DSO_BYPASS_MODE);
     /* start batching in continuous mode */
     lsm6dso_fifo_mode_set(&reg_ctx, LSM6DSO_STREAM_MODE);
     /* Set Output Data Rate */
-    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_1667Hz);
-    lsm6dso_gy_data_rate_set(&reg_ctx, LSM6DSO_GY_ODR_1667Hz);
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_833Hz);
+    lsm6dso_gy_data_rate_set(&reg_ctx, LSM6DSO_GY_ODR_833Hz);
+    /* 时间戳 */
+    lsm6dso_fifo_timestamp_decimation_set(&reg_ctx, LSM6DSO_DEC_1);
 
 }
 

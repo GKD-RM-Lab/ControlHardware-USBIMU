@@ -24,6 +24,11 @@ typedef union {
     uint8_t u8bit[6];  // 字节访问
 } axis3bit16_t;
 
+typedef union {
+    int32_t i32bit;
+    uint8_t u8bit[4];  
+} time_stamp;
+
 class LSM6DSO_Handle
 {
 private:
@@ -44,6 +49,8 @@ public:
     float angular_rate_mdps[3];
     float temperature_degC;
     uint8_t whoamI, rst;
+    time_stamp this_timestamp;    //数据时间戳
+    time_stamp last_timestamp;
     
     /*工具函数*/
     void plot_data();               //输出便于vofa+显示的数据

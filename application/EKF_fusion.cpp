@@ -6,7 +6,7 @@
 EKF_fusion EKF;
 void EKF_fusion_Task(void *argument)
 {
-    EKF.delta_time = 0.001;    // 周期设置为1ms
+    EKF.delta_time = 0.0012;    // 周期设置为1.2ms
     EKF.init();
     IMU.begin();
 
