@@ -216,7 +216,7 @@ void LSM6DSO_Handle::begin()
     lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_833Hz);
     lsm6dso_gy_data_rate_set(&reg_ctx, LSM6DSO_GY_ODR_833Hz);
     /* 时间戳 */
-    lsm6dso_fifo_timestamp_decimation_set(&reg_ctx, LSM6DSO_DEC_1);
+    // lsm6dso_fifo_timestamp_decimation_set(&reg_ctx, LSM6DSO_DEC_1);
 
     /* SH Mag */
     /* Enable FIFO batching of Slave0. ODR batching is 104 Hz. */
