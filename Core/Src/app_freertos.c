@@ -154,7 +154,7 @@ void MX_FREERTOS_Init(void) {
   //USB RX Task
   // USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
   //LED Task
-  LED_TASK_Handle = osThreadNew(LED_Task, NULL , &LED_TASK_attributes);
+  // LED_TASK_Handle = osThreadNew(LED_Task, NULL , &LED_TASK_attributes);
 
   /* USER CODE END RTOS_THREADS */
 

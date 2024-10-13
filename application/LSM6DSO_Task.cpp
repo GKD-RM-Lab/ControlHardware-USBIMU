@@ -6,18 +6,17 @@ LSM6DSO_Handle IMU;
 /******* 不在此处单开线程读取IMU，IMU读取和EKF并入同一个线程 ********/
 void LSM6DSO_Task(void *argument)
 {
-    // IMU.begin();
+    IMU.begin();
     // cprintf(&huart3, "IMU id = %x\n", IMU.checkid());
     // cprintf(&huart3, "temperature:%d\n", (int)IMU.get_temperature());
     /*以1KHZ的频率轮询获取数据*/
     while (1)
     {
         // if(!IMU.ready()) continue;
-        // IMU.update();
+        IMU.update();
         // IMU.print_data();
         // IMU.plot_data();
-        vTaskDelay(2);      //周期0.3ms，采样率约为3khz
-
+        vTaskDelay(10);
     }
     
 }
@@ -50,38 +49,77 @@ void LSM6DSO_Handle::plot_data()
 
 void LSM6DSO_Handle::print_data()
 {
-    cprintf(&huart3, "Gyro:%d, %d, %d(mdps)\n", (int)IMU.angular_rate_mdps[0],
+    cprintf(&huart3, "Gyro:\t%d,\t %d,\t %d\t(mdps)\n", (int)IMU.angular_rate_mdps[0],
                     (int)IMU.angular_rate_mdps[1], (int)IMU.angular_rate_mdps[2]);
-    cprintf(&huart3, "Accel:%d, %d, %d(mg)\n", (int)IMU.acceleration_mg[0],
+    vTaskDelay(10);
+    cprintf(&huart3, "Accel:\t%d,\t %d,\t %d\t(mg)\n", (int)IMU.acceleration_mg[0],
                     (int)IMU.acceleration_mg[1], (int)IMU.acceleration_mg[2]);
+    vTaskDelay(10);
     cprintf(&huart3, "temperature:%d\n", (int)IMU.temperature_degC);
 }
 
 /*更新LSM6DSO数据*/
 void LSM6DSO_Handle::update()
 {
-    /*加速度计数据*/
-    memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
-    lsm6dso_acceleration_raw_get(&reg_ctx, data_raw_acceleration);
-    acceleration_mg[0] =
-    lsm6dso_from_fs4_to_mg(data_raw_acceleration[0]);
-    acceleration_mg[1] =
-    lsm6dso_from_fs4_to_mg(data_raw_acceleration[1]);
-    acceleration_mg[2] =
-    lsm6dso_from_fs4_to_mg(data_raw_acceleration[2]);
-    
-    /*角速度计数据*/
-    memset(data_raw_angular_rate, 0x00, 3 * sizeof(int16_t));
-    lsm6dso_angular_rate_raw_get(&reg_ctx, data_raw_angular_rate);
-    angular_rate_mdps[0] =
-    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[0]);
-    angular_rate_mdps[1] =
-    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[1]);
-    angular_rate_mdps[2] =
-    lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate[2]);
+    /*data to fill*/
+    //acceleration_mg
+    //angular_rate_mdps
+    //temperature_degC
+    /*临时变量*/
+    uint16_t num = 0;
+    uint8_t wmflag = 0;
+    lsm6dso_fifo_tag_t reg_tag;
+    axis3bit16_t dummy;
 
-    /*温度计数据*/
-    temperature_degC = IMU.get_temperature();
+    /* Read watermark flag */
+    lsm6dso_fifo_wtm_flag_get(&reg_ctx, &wmflag);
+
+    if (wmflag > 0) 
+    {
+        /* Read number of samples in FIFO */
+        lsm6dso_fifo_data_level_get(&reg_ctx, &num);
+
+        /* 读出fifo中的数据 */
+        while (num--) 
+        {
+            lsm6dso_fifo_sensor_tag_get(&reg_ctx, &reg_tag);
+
+            /* 读出目标寄存器中的数据 */
+            switch (reg_tag) {
+            case LSM6DSO_XL_NC_TAG:
+                memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
+                lsm6dso_fifo_out_raw_get(&reg_ctx, data_raw_acceleration.u8bit);
+                acceleration_mg[0] =
+                lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[0]);
+                acceleration_mg[1] =
+                lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[1]);
+                acceleration_mg[2] =
+                lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[2]);
+                break;
+
+            case LSM6DSO_GYRO_NC_TAG:
+                memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
+                lsm6dso_fifo_out_raw_get(&reg_ctx, data_raw_angular_rate.u8bit);
+                angular_rate_mdps[0] =
+                lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0]);
+                angular_rate_mdps[1] =
+                lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
+                angular_rate_mdps[2] =
+                lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
+                break;
+
+            default:
+                /* Flush unused samples */
+                memset(dummy.u8bit, 0x00, 3 * sizeof(int16_t));
+                lsm6dso_fifo_out_raw_get(&reg_ctx, dummy.u8bit);
+                break;
+            }
+
+        }
+
+        //读取温度
+        temperature_degC = get_temperature();
+    }
 
 }
 
@@ -125,17 +163,34 @@ void LSM6DSO_Handle::begin()
     lsm6dso_i3c_disable_set(&reg_ctx, LSM6DSO_I3C_DISABLE);
     /* Enable Block Data Update */
     lsm6dso_block_data_update_set(&reg_ctx, PROPERTY_ENABLE);
-    /* Set Output Data Rate */
-    lsm6dso_xl_data_rate_set(&reg_ctx, xl_odr_set);
-    lsm6dso_gy_data_rate_set(&reg_ctx, gyro_odr_set);
+    
     /* Set full scale */
     lsm6dso_xl_full_scale_set(&reg_ctx, xl_fullscale_set);
     lsm6dso_gy_full_scale_set(&reg_ctx, gyro_fullscale_set);
-    /* Configure filtering chain(No aux interface)
-    * Accelerometer - LPF1 + LPF2 path
+        
+    // change to fifo
+    // /* Configure filtering chain(No aux interface)
+    // * Accelerometer - LPF1 + LPF2 path
+    // */
+    // lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_LP_ODR_DIV_10);
+    // lsm6dso_xl_filter_lp2_set(&reg_ctx, PROPERTY_ENABLE);
+
+      /* Set FIFO watermark (number of unread sensor data TAG + 6 bytes
+    * stored in FIFO) to 10 samples
     */
-    lsm6dso_xl_hp_path_on_out_set(&reg_ctx, LSM6DSO_LP_ODR_DIV_10);
-    lsm6dso_xl_filter_lp2_set(&reg_ctx, PROPERTY_ENABLE);
+    lsm6dso_fifo_watermark_set(&reg_ctx, 1);
+    /* Set FIFO batch XL/Gyro ODR */
+    lsm6dso_fifo_xl_batch_set(&reg_ctx, LSM6DSO_XL_BATCHED_AT_1667Hz);
+    lsm6dso_fifo_gy_batch_set(&reg_ctx, LSM6DSO_GY_BATCHED_AT_6667Hz);
+    /* Set FIFO mode to Stream mode (aka Continuous Mode) */
+    /* flush any previous value in FIFO before start */
+    lsm6dso_fifo_mode_set(&reg_ctx, LSM6DSO_BYPASS_MODE);
+    /* start batching in continuous mode */
+    lsm6dso_fifo_mode_set(&reg_ctx, LSM6DSO_STREAM_MODE);
+    /* Set Output Data Rate */
+    lsm6dso_xl_data_rate_set(&reg_ctx, LSM6DSO_XL_ODR_1667Hz);
+    lsm6dso_gy_data_rate_set(&reg_ctx, LSM6DSO_GY_ODR_1667Hz);
+
 }
 
 
