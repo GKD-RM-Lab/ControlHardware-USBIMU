@@ -104,8 +104,8 @@ const osThreadAttr_t USB_TX_TASK_attributes = {
 osThreadId_t LED_TASK_Handle;
 const osThreadAttr_t LED_TASK_attributes = {
   .name = "LED task",
-  .priority = (osPriority_t) osPriorityLow,
-  .stack_size = 256
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 1024
 };
 /* USER CODE END FunctionPrototypes */
 

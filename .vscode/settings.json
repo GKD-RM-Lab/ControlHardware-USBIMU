@@ -6,7 +6,8 @@
         "stm32g4xx_hal.h": "c",
         "iostream": "cpp",
         "compare": "cpp",
-        "tim.h": "c"
+        "tim.h": "c",
+        "usbd_desc.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

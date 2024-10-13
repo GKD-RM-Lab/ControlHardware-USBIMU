@@ -1,6 +1,9 @@
 #ifndef LED_Task_H
 #define LED_Task_H
 
+#define LED_COUNT 10  // 控制的LED数量
+#define WS2812_HIGH 200 // 高电平时间，单位：timer ticks
+#define WS2812_LOW 100  // 低电平时间，单位：timer ticks
 
 /*CPP功能部分*/
 #ifdef __cplusplus
@@ -15,21 +18,7 @@
 //ws2812
 #include "tim.h"
 #include "dma.h"
-#include "gpio.h"
-
-#define LED_COUNT 10  // 控制的LED数量
-#define WS2812_HIGH 60 // 高电平时间，单位：timer ticks
-#define WS2812_LOW 30  // 低电平时间，单位：timer ticks
-
-class WS2812_LED
-{
-private:
-    uint8_t led_buffer[LED_COUNT * 24]; // 每个LED 24位
-public:
-    int8_t set(uint8_t red, uint8_t green, uint8_t blue, int led_index);   //设置led颜色
-    WS2812_LED(/* args */);
-};
-
+#include "main.h"
 
 
 
