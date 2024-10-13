@@ -62,11 +62,11 @@
   * @{
   */
 
-#define USBD_VID     0xFFFF
+#define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "GKD Robotics Lab"
-#define USBD_PID     0xAAAA
-#define USBD_PRODUCT_STRING     "Rmcontrol-IMU V1.0"
+#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
+#define USBD_PID     22336
+#define USBD_PRODUCT_STRING     "STM32 Virtual ComPort"
 #define USBD_CONFIGURATION_STRING     "CDC Config"
 #define USBD_INTERFACE_STRING     "CDC Interface"
 
@@ -165,7 +165,6 @@ __ALIGN_BEGIN uint8_t USBD_CDC_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
   USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
 };
-
 
 /* USB_DeviceDescriptor */
 

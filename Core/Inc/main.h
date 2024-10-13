@@ -71,8 +71,6 @@ void Error_Handler(void);
 #define BMI_INT_Accel_GPIO_Port GPIOA
 #define laser_Pin GPIO_PIN_4
 #define laser_GPIO_Port GPIOA
-#define WS2812_Pin GPIO_PIN_1
-#define WS2812_GPIO_Port GPIOB
 #define LED_Pin GPIO_PIN_2
 #define LED_GPIO_Port GPIOB
 #define LSM_CS_Pin GPIO_PIN_12

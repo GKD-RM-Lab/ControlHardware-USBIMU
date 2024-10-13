@@ -94,17 +94,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-
-  /*根据GPIO值配置USB PID和VID， 根据ADDR1~4产生16种PID，VID始终为0xAEEE*/
-  uint16_t vid = 0xAEEE;
-  uint16_t pid = 0x0000;
-  pid |= HAL_GPIO_ReadPin(ADDR1_GPIO_Port, ADDR1_Pin) << 0;
-  pid |= HAL_GPIO_ReadPin(ADDR2_GPIO_Port, ADDR2_Pin) << 1;
-  pid |= HAL_GPIO_ReadPin(ADDR3_GPIO_Port, ADDR3_Pin) << 2;
-  pid |= HAL_GPIO_ReadPin(ADDR4_GPIO_Port, ADDR4_Pin) << 3;
-  USBD_CDC_DeviceDesc_Change(vid, pid);
-
-
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
@@ -113,6 +102,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_Device_Init();
   MX_CRC_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -128,7 +118,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /*应当不会运行到此�?*/
+    /*应当不会运行到此�??*/
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     HAL_Delay(1000);
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
@@ -188,7 +178,7 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-//一个可以中途修改USBD_CDC_DeviceDesc中USBD_VID和USBD_PID的函数
+//�?个可以中途修改USBD_CDC_DeviceDesc中USBD_VID和USBD_PID的函�?
 void USBD_CDC_DeviceDesc_Change(uint16_t vid, uint16_t pid)
 {
   USBD_CDC_DeviceDesc[8] = LOBYTE(vid);

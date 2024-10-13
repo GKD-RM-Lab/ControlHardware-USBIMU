@@ -5,7 +5,8 @@
         "custom_conf.h": "c",
         "stm32g4xx_hal.h": "c",
         "iostream": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "tim.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
