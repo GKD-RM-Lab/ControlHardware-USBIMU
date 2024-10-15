@@ -19,6 +19,13 @@ void USB_VCP_RX_Task(void *argument)
 /*USB发送线程*/
 void USB_VCP_TX_Task(void *argument)
 {
+    //跳过开机时的零数据
+    while(1)
+    {
+        if(IMU.acceleration_mg[0] != 0) break;
+        vTaskDelay(1000);
+    }
+
     while (1)
     {
         // Usb.imu_angle_send(EKF.Angle_fused);
