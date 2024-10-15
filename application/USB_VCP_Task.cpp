@@ -31,8 +31,8 @@ void USB_VCP_TX_Task(void *argument)
 
     while (1)
     {
-        // Usb.imu_angle_send(EKF.Angle_fused);
-        Usb.imu_angle_send_vofa(EKF.Angle_fused);
+        Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
+        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps);
         vTaskDelay(1 * 10);         //1khz
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
         // IMU.plot_data();
@@ -120,22 +120,41 @@ void USB_VCPTask::instruct_decode(uint8_t *buf, uint8_t len)
     }
 }
 
-void USB_VCPTask::imu_angle_send(float *angle)
+void USB_VCPTask::imu_angle_send(float *angle, float *angle_v)
 {
-    frame.yaw = angle[0];
-    frame.pitch = angle[1];
+    typedef struct SendPacket {
+    uint8_t heaedr;
+    float yaw;
+    float pitch;
+    float roll;
+    float roll_v;
+    float pitch_v;
+    float yaw_v;
+    int16_t ch[5];
+    char s[2];
+    } __attribute__((packed)) SendPacket;
+    
+    SendPacket frame; 
+    frame.heaedr = 0x5A;
     frame.roll = angle[2];
-    frame.length = sizeof(frame);
+    frame.pitch = angle[1];
+    frame.yaw = angle[0];
+    frame.roll_v = angle_v[2];
+    frame.pitch_v = angle_v[1];
+    frame.yaw_v = angle_v[0];
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
 
-void USB_VCPTask::imu_angle_send_vofa(float *angle)
+void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v)
 {
     typedef struct
     {
         float yaw;
         float pitch;
         float roll;
+        float yaw_v;
+        float pitch_v;
+        float roll_v;
         uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
     }__attribute__((packed)) Frame_type;
     Frame_type frame;
@@ -143,6 +162,9 @@ void USB_VCPTask::imu_angle_send_vofa(float *angle)
     frame.yaw = angle[0];
     frame.pitch = angle[1];
     frame.roll = angle[2];
+    frame.roll_v = angle_v[2];
+    frame.pitch_v = angle_v[1];
+    frame.yaw_v = angle_v[0];
 
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
