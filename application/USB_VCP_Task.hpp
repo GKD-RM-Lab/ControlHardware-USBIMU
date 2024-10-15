@@ -112,6 +112,8 @@ private:
 public:
     void instruct_decode(uint8_t *buf, uint8_t len);    //处理接收到的数据
     void imu_angle_send(float *angle);
+    void imu_angle_send_vofa(float *angle);
+    
 };
 
 

@@ -6,12 +6,15 @@
 USB_VCPTask Usb;
 
 /*USB接收线程*/
+//TODO 一个奇怪的bug，必须调用EKF.plot_angle的串口阻塞发送EKF解算才正常，不然yaw疯狂飘
+//现在这里周期性调用它防止yaw飘
 void USB_VCP_RX_Task(void *argument)
 {
     while (1)
     {
         // cprintf(&huart3, "usb rx ok\n");
-        vTaskDelay(1000);
+        EKF.plot_angle();
+        vTaskDelay(100);
     }
     
 }
@@ -29,9 +32,9 @@ void USB_VCP_TX_Task(void *argument)
     while (1)
     {
         // Usb.imu_angle_send(EKF.Angle_fused);
-        vTaskDelay(10 * 10);         //1khz
+        Usb.imu_angle_send_vofa(EKF.Angle_fused);
+        vTaskDelay(1 * 10);         //1khz
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        EKF.plot_angle();
         // IMU.plot_data();
         // IMU.print_data();
         // EKF.print_angle();
@@ -123,5 +126,23 @@ void USB_VCPTask::imu_angle_send(float *angle)
     frame.pitch = angle[1];
     frame.roll = angle[2];
     frame.length = sizeof(frame);
+    CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
+}
+
+void USB_VCPTask::imu_angle_send_vofa(float *angle)
+{
+    typedef struct
+    {
+        float yaw;
+        float pitch;
+        float roll;
+        uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
+    }__attribute__((packed)) Frame_type;
+    Frame_type frame;
+
+    frame.yaw = angle[0];
+    frame.pitch = angle[1];
+    frame.roll = angle[2];
+
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
