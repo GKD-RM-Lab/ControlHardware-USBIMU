@@ -38,6 +38,7 @@
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
 #include "usb_device.h"
+#include "main.h"
 
 /*帧命令ID定义*/
 #define FRAME_HEAD 0x5A;            //帧头

@@ -94,7 +94,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-
+  
   /*根据GPIO值配置USB PID和VID， 根据ADDR1~4产生16种PID，VID始终为0xAEEE*/
   uint16_t vid = 0xAEEE;
   uint16_t pid = 0x0000;
@@ -104,7 +104,6 @@ int main(void)
   pid |= HAL_GPIO_ReadPin(ADDR4_GPIO_Port, ADDR4_Pin) << 3;
   USBD_CDC_DeviceDesc_Change(vid, pid);
 
-
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
@@ -113,6 +112,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_Device_Init();
   MX_CRC_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -128,7 +128,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /*应当不会运行到此�?*/
+    /*应当不会运行到此�??*/
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     HAL_Delay(1000);
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);

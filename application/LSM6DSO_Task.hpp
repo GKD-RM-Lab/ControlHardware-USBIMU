@@ -1,8 +1,6 @@
 #ifndef LSM6DSO_Task_H
 #define LSM6DSO_Task_H
 
-/*CPP功能部分*/
-#ifdef __cplusplus
 //RTOS
 #include "FreeRTOS.h"
 #include "task.h"
@@ -17,6 +15,20 @@
 #include "lsm6dso.h"
 #include "spi.h"
 
+
+/*CPP功能部分*/
+#ifdef __cplusplus
+
+typedef union {
+    int16_t i16bit[3]; // 16位访问
+    uint8_t u8bit[6];  // 字节访问
+} axis3bit16_t;
+
+typedef union {
+    int32_t i32bit;
+    uint8_t u8bit[4];  
+} time_stamp;
+
 class LSM6DSO_Handle
 {
 private:
@@ -30,13 +42,15 @@ public:
     stmdev_ctx_t reg_ctx;
     LSM6DSO_Object_t lsm6dso_obj;
     /*传感器数据*/
-    int16_t data_raw_acceleration[3];
-    int16_t data_raw_angular_rate[3];
+    axis3bit16_t data_raw_acceleration{};
+    axis3bit16_t data_raw_angular_rate{};
     int16_t data_raw_temperature;
     float acceleration_mg[3];
     float angular_rate_mdps[3];
     float temperature_degC;
     uint8_t whoamI, rst;
+    time_stamp this_timestamp;    //数据时间戳
+    time_stamp last_timestamp;
     
     /*工具函数*/
     void plot_data();               //输出便于vofa+显示的数据

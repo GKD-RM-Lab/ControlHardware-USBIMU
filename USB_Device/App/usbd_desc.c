@@ -166,7 +166,6 @@ __ALIGN_BEGIN uint8_t USBD_CDC_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
 };
 
-
 /* USB_DeviceDescriptor */
 
 /**
