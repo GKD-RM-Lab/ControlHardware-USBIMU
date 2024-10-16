@@ -99,6 +99,17 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
         Angle_fused[i] = data_out.rotation[i];
     }
 
+    //输出四元数
+    for(int i=0; i<4; i++){
+        Quaternion[i] = data_out.quaternion[i];
+    }
+
+    //输出四元数
+    for(int i=0; i<3; i++){
+        linear_acceleration[i] = data_out.linear_acceleration[i];
+    }
+
+
     //耗时统计 end
     end_tick = xTaskGetTickCount();
     elapsed_time_us = (end_tick - start_tick) * 100;

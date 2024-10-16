@@ -31,9 +31,10 @@ void USB_VCP_TX_Task(void *argument)
 
     while (1)
     {
-        Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
-        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps);
-        vTaskDelay(1 * 10);         //1khz
+        // Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
+        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps,
+                                        EKF.Quaternion, EKF.linear_acceleration);
+        vTaskDelay(1.2 * 10);         //1khz
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
         // IMU.plot_data();
         // IMU.print_data();
@@ -145,7 +146,8 @@ void USB_VCPTask::imu_angle_send(float *angle, float *angle_v)
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
 
-void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v)
+void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v, float *quaternion,
+                                        float *linear_acceleration)
 {
     typedef struct
     {
@@ -155,6 +157,8 @@ void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v)
         float yaw_v;
         float pitch_v;
         float roll_v;
+        float quaternion[4];            //四元数
+        float linear_acceleration[3];   //线加速度
         uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
     }__attribute__((packed)) Frame_type;
     Frame_type frame;
@@ -162,9 +166,15 @@ void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v)
     frame.yaw = angle[0];
     frame.pitch = angle[1];
     frame.roll = angle[2];
-    frame.roll_v = angle_v[2];
-    frame.pitch_v = angle_v[1];
-    frame.yaw_v = angle_v[0];
+    frame.roll_v = angle_v[2]   /1000;
+    frame.pitch_v = angle_v[1]  /1000;
+    frame.yaw_v = angle_v[0]    /1000;
+    for(int i=0; i<4; i++){
+        frame.quaternion[i] = quaternion[i];
+    }
+    for(int i=0; i<3; i++){
+        frame.linear_acceleration[i] = linear_acceleration[i];
+    }
 
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
