@@ -45,7 +45,11 @@ public:
     float delta_time = 0.001;    //EKF计算周期(ms)
     uint32_t elapsed_time_us;    //上一次EFK计算耗时(us)
 
+    /*EKF输出数据*/
     float Angle_fused[3];   //EFK融合输出的数据 {yaw, pitch, roll}
+    float Quaternion[4];
+    float linear_acceleration[3];
+    
     void print_angle();     //输出EKF融合之后的欧拉角
     void plot_angle();
     void init();            //EKF初始化

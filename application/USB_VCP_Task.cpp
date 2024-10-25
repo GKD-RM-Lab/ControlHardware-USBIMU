@@ -6,12 +6,15 @@
 USB_VCPTask Usb;
 
 /*USB接收线程*/
+//TODO 一个奇怪的bug，必须调用EKF.plot_angle的串口阻塞发送EKF解算才正常，不然yaw疯狂飘
+//现在这里周期性调用它防止yaw飘
 void USB_VCP_RX_Task(void *argument)
 {
     while (1)
     {
         // cprintf(&huart3, "usb rx ok\n");
-        vTaskDelay(1000);
+        EKF.plot_angle();
+        vTaskDelay(100);
     }
     
 }
@@ -19,12 +22,20 @@ void USB_VCP_RX_Task(void *argument)
 /*USB发送线程*/
 void USB_VCP_TX_Task(void *argument)
 {
+    //跳过开机时的零数据
+    while(1)
+    {
+        if(IMU.acceleration_mg[0] != 0) break;
+        vTaskDelay(1000);
+    }
+
     while (1)
     {
-        // Usb.imu_angle_send(EKF.Angle_fused);
-        vTaskDelay(100);         //1khz
+        // Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
+        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps,
+                                        EKF.Quaternion, EKF.linear_acceleration);
+        vTaskDelay(1.2 * 10);         //1khz
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        EKF.plot_angle();
         // IMU.plot_data();
         // IMU.print_data();
         // EKF.print_angle();
@@ -110,11 +121,60 @@ void USB_VCPTask::instruct_decode(uint8_t *buf, uint8_t len)
     }
 }
 
-void USB_VCPTask::imu_angle_send(float *angle)
+void USB_VCPTask::imu_angle_send(float *angle, float *angle_v)
 {
+    typedef struct SendPacket {
+    uint8_t heaedr;
+    float yaw;
+    float pitch;
+    float roll;
+    float roll_v;
+    float pitch_v;
+    float yaw_v;
+    int16_t ch[5];
+    char s[2];
+    } __attribute__((packed)) SendPacket;
+    
+    SendPacket frame; 
+    frame.heaedr = 0x5A;
+    frame.roll = angle[2];
+    frame.pitch = angle[1];
+    frame.yaw = angle[0];
+    frame.roll_v = angle_v[2];
+    frame.pitch_v = angle_v[1];
+    frame.yaw_v = angle_v[0];
+    CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
+}
+
+void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v, float *quaternion,
+                                        float *linear_acceleration)
+{
+    typedef struct
+    {
+        float yaw;
+        float pitch;
+        float roll;
+        float yaw_v;
+        float pitch_v;
+        float roll_v;
+        float quaternion[4];            //四元数
+        float linear_acceleration[3];   //线加速度
+        uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
+    }__attribute__((packed)) Frame_type;
+    Frame_type frame;
+
     frame.yaw = angle[0];
     frame.pitch = angle[1];
     frame.roll = angle[2];
-    frame.length = sizeof(frame);
+    frame.roll_v = angle_v[2]   /1000;
+    frame.pitch_v = angle_v[1]  /1000;
+    frame.yaw_v = angle_v[0]    /1000;
+    for(int i=0; i<4; i++){
+        frame.quaternion[i] = quaternion[i];
+    }
+    for(int i=0; i<3; i++){
+        frame.linear_acceleration[i] = linear_acceleration[i];
+    }
+
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
