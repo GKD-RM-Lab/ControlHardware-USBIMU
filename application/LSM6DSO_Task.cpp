@@ -184,7 +184,7 @@ void LSM6DSO_Handle::begin()
     lsm6dso_i3c_disable_set(&reg_ctx, LSM6DSO_I3C_DISABLE);
     
     /* Configure magnetometer */
-    setupMag();
+    // setupMag();
     
     /* Enable Block Data Update */
     lsm6dso_block_data_update_set(&reg_ctx, PROPERTY_ENABLE);
