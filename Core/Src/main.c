@@ -94,7 +94,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  
+    
   /*根据GPIO值配置USB PID和VID， 根据ADDR1~4产生16种PID，VID始终为0xAEEE*/
   uint16_t vid = 0xAEEE;
   uint16_t pid = 0x0000;
@@ -113,6 +113,7 @@ int main(void)
   MX_USB_Device_Init();
   MX_CRC_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

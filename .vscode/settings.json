@@ -8,7 +8,8 @@
         "compare": "cpp",
         "tim.h": "c",
         "usbd_desc.h": "c",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "rc_task.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -61,14 +61,6 @@ void Error_Handler(void);
 #define IST_RSDY_GPIO_Port GPIOC
 #define IST_RSTN_Pin GPIO_PIN_15
 #define IST_RSTN_GPIO_Port GPIOC
-#define BMI_CS_Gyro_Pin GPIO_PIN_0
-#define BMI_CS_Gyro_GPIO_Port GPIOA
-#define BMI_CS_Accel_Pin GPIO_PIN_1
-#define BMI_CS_Accel_GPIO_Port GPIOA
-#define BMI_INT_Gyro_Pin GPIO_PIN_2
-#define BMI_INT_Gyro_GPIO_Port GPIOA
-#define BMI_INT_Accel_Pin GPIO_PIN_3
-#define BMI_INT_Accel_GPIO_Port GPIOA
 #define laser_Pin GPIO_PIN_4
 #define laser_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_2

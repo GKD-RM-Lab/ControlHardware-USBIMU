@@ -31,6 +31,7 @@
 #include "EKF_fusion.hpp"
 #include "USB_VCP_Task.hpp"
 #include "LED_Task.hpp"
+#include "RC_Task.h"
 
 /* USER CODE END Includes */
 
@@ -107,8 +108,16 @@ const osThreadAttr_t LED_TASK_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 1024
 };
+/***************RCTask***************/
+osThreadId_t RC_TASK_Handle;
+const osThreadAttr_t RC_TASK_attributes = {
+  .name = "RC task",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 1024
+};
 /* USER CODE END FunctionPrototypes */
 
+void StartDefaultTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -155,7 +164,8 @@ void MX_FREERTOS_Init(void) {
   USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
   //LED Task
   // LED_TASK_Handle = osThreadNew(LED_Task, NULL , &LED_TASK_attributes);
-
+  //RC Task
+  RC_TASK_Handle = osThreadNew(RC_Task, NULL, &RC_TASK_attributes); 
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -171,23 +181,16 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-
-
-
 void StartDefaultTask(void *argument)
 {
-
+  /* USER CODE BEGIN StartDefaultTask */
+  /* Infinite loop */
   for(;;)
   {
-    vTaskDelay(100);
+    osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
 }
-
-/************************************************************************************************
- * end of ism6dso test
-************************************************************************************************/
-
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
