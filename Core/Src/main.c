@@ -33,6 +33,7 @@
 #include "usbd_desc.h"
 #include "bsp_rc.h"
 #include "remote_control.h"
+#include "com.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +54,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern uint8_t sbus_rx_buf[200];
+extern uint8_t sbus_rx_buf[50];
 const RC_ctrl_t *local_rc_ctrl;
 /* USER CODE END PV */
 
@@ -97,7 +98,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-    
   /*根据GPIO值配置USB PID和VID， 根据ADDR1~4产生16种PID，VID始终为0xAEEE*/
   uint16_t vid = 0xAEEE;
   uint16_t pid = 0x0000;
@@ -120,8 +120,22 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   __HAL_UART_ENABLE_IT(&huart2,UART_IT_IDLE);
-  HAL_UART_Receive_DMA(&huart2,(uint8_t *)sbus_rx_buf,50);
+  HAL_UART_Receive_DMA(&huart2,&sbus_rx_buf,50);
   
+  /*DEBUG*/
+
+  // while(1)
+  // {
+  //   HAL_UART_Receive(&huart2, &sbus_rx_buf, 18, HAL_MAX_DELAY);
+  //   // for(float i=0; i<18; i += 0.5){
+  //   //   cprintf(&huart3, "%x, ", sbus_rx_buf[(int)i]);
+  //   //   // cprintf(&huart3, "%d, ", (int)i);
+  //   // }
+  //   cprintf(&huart3, "\r\n");
+  //   HAL_Delay(1);
+  // }
+
+
   //remote_control_init();
   /* USER CODE END 2 */
 
@@ -136,7 +150,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /*应当不会运行到此�??*/
+    /*应当不会运行到此�???*/
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     HAL_Delay(1000);
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
