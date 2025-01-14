@@ -31,7 +31,6 @@
 #include "EKF_fusion.hpp"
 #include "USB_VCP_Task.hpp"
 #include "LED_Task.hpp"
-#include "RC_Task.h"
 
 /* USER CODE END Includes */
 
@@ -108,13 +107,7 @@ const osThreadAttr_t LED_TASK_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 1024
 };
-/***************RCTask***************/
-osThreadId_t RC_TASK_Handle;
-const osThreadAttr_t RC_TASK_attributes = {
-  .name = "RC task",
-  .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 1024
-};
+
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -157,15 +150,14 @@ void MX_FREERTOS_Init(void) {
   //LSM6DSO Task
   // LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
   //EKF Task
-  EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
+  //EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
   //USB TX Task
-  USB_TX_TASK_Handle = osThreadNew(USB_VCP_TX_Task, NULL, &USB_TX_TASK_attributes);
+  //USB_TX_TASK_Handle = osThreadNew(USB_VCP_TX_Task, NULL, &USB_TX_TASK_attributes);
   //USB RX Task
-  USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
+  //USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
   //LED Task
   // LED_TASK_Handle = osThreadNew(LED_Task, NULL , &LED_TASK_attributes);
-  //RC Task
-  RC_TASK_Handle = osThreadNew(RC_Task, NULL, &RC_TASK_attributes); 
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */

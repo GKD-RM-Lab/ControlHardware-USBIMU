@@ -22,7 +22,7 @@ TARGET = RMCONTROL-G431
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -O0
 
 
 #######################################
@@ -99,7 +99,8 @@ Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_crc_ex.c \
 Core/Src/dma.c \
 Core/Src/sysmem.c \
 Core/Src/syscalls.c \
-application/RC_Task.c
+Drivers/BSP/Components/lsm6dso/bsp_rc.c \
+Drivers/BSP/Components/lsm6dso/remote_control.c
 
 # CPP sources
 CXX_SOURCES = \

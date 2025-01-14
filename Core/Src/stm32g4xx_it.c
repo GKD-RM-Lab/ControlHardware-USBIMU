@@ -22,6 +22,8 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "remote_control.h"
+#include "com.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +43,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+extern uint8_t sbus_rx_buf[200];
+extern RC_ctrl_t rc_ctrl;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -241,6 +244,13 @@ void TIM2_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
+  if(__HAL_UART_GET_FLAG(&huart2,UART_FLAG_IDLE) == SET)
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart2);
+    HAL_UART_DMAStop(&huart2);
+
+    sbus_to_rc(sbus_rx_buf, &rc_ctrl);
+  }
 
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
@@ -248,6 +258,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 1 */
 }
+
 
 /**
   * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.

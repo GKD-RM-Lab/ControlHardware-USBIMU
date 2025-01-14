@@ -31,6 +31,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usbd_desc.h"
+#include "bsp_rc.h"
+#include "remote_control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +53,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern uint8_t sbus_rx_buf[200];
+const RC_ctrl_t *local_rc_ctrl;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,6 +119,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  __HAL_UART_ENABLE_IT(&huart2,UART_IT_IDLE);
+  HAL_UART_Receive_DMA(&huart2,(uint8_t *)sbus_rx_buf,50);
+  
+  //remote_control_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
