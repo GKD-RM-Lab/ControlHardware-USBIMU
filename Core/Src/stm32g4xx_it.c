@@ -249,15 +249,8 @@ void USART2_IRQHandler(void)
     __HAL_UART_CLEAR_IDLEFLAG(&huart2);
     HAL_UART_DMAStop(&huart2);
 
-    // HAL_UART_Transmit(&huart3, (uint8_t *)sbus_rx_buf, )
-
-    // for(float i=0; i<18; i += 0.5){
-    //   // cprintf(&huart3, "%x, ", sbus_rx_buf[(int)i]);
-    //   cprintf(&huart3, "%d, ", (int)i);
-    // }
-    // cprintf(&huart3, "\n");
-
     sbus_to_rc(sbus_rx_buf, &rc_ctrl);
+    
     HAL_UART_Receive_DMA(&huart2,(uint8_t *)sbus_rx_buf,50);
   }
 

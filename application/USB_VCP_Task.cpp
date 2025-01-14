@@ -32,8 +32,13 @@ void USB_VCP_TX_Task(void *argument)
     while (1)
     {
         // Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
-        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps, EKF.Quaternion ,EKF.linear_acceleration);
+        // Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps, EKF.Quaternion ,EKF.linear_acceleration);
         vTaskDelay(1 * 10);         //1khz
+
+        /*发送hello*/
+        char msg[30] = "hello\n";
+        CDC_Transmit_FS((uint8_t *)msg, sizeof(msg));
+
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
         // IMU.plot_data();
         // IMU.print_data();
