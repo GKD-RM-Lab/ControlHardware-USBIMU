@@ -142,19 +142,19 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  // defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  //defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
 
   //LSM6DSO Task
-  // LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
+  //LSM6DSO_TASK_Handle = osThreadNew(LSM6DSO_Task, NULL, &LSM6DSO_TASK_attributes);
   //EKF Task
-  //EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
+    EKF_TASK_Handle = osThreadNew(EKF_fusion_Task, NULL, &EKF_TASK_attributes);
   //USB TX Task
-  USB_TX_TASK_Handle = osThreadNew(USB_VCP_TX_Task, NULL, &USB_TX_TASK_attributes);
+    USB_TX_TASK_Handle = osThreadNew(USB_VCP_TX_Task, NULL, &USB_TX_TASK_attributes);
   //USB RX Task
-  //USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
+    USB_RX_TASK_Handle = osThreadNew(USB_VCP_RX_Task, NULL, &USB_RX_TASK_attributes);  
   //LED Task
   // LED_TASK_Handle = osThreadNew(LED_Task, NULL , &LED_TASK_attributes);
 

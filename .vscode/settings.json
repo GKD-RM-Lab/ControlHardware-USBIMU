@@ -14,7 +14,8 @@
         "bsp_rc.h": "c",
         "main.h": "c",
         "stm32g4xx_hal_uart.h": "c",
-        "struct_typedef.h": "c"
+        "struct_typedef.h": "c",
+        "remote_control.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -45,6 +45,12 @@
 /* USER CODE BEGIN PV */
 extern uint8_t sbus_rx_buf[50];
 extern RC_ctrl_t rc_ctrl;
+
+/*
+uint8_t *get_rc_point();
+uint8_t *get_rc_size();
+*/
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -252,6 +258,8 @@ void USART2_IRQHandler(void)
     sbus_to_rc(sbus_rx_buf, &rc_ctrl);
     
     HAL_UART_Receive_DMA(&huart2,(uint8_t *)sbus_rx_buf,50);
+
+    rc_trans();
   }
 
   /* USER CODE END USART2_IRQn 0 */
@@ -276,5 +284,17 @@ void USART3_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+/*
+uint8_t *get_rc_point()
+{
+  return (uint8_t *)rc_ctrl;
+}
+
+uint8_t *get_rc_size()
+{
+  return sizeof(rc_ctrl);
+}
+*/
 
 /* USER CODE END 1 */

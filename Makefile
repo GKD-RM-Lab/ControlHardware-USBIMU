@@ -22,7 +22,7 @@ TARGET = RMCONTROL-G431
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -O0
+OPT = -Og
 
 
 #######################################

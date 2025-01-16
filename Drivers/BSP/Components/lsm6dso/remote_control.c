@@ -38,9 +38,8 @@ extern UART_HandleTypeDef huart2;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 
 
-
 void sbus_to_rc(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl);
-
+void rc_trans(void);
 //remote control data 
 //遥控器控制变量
 RC_ctrl_t rc_ctrl;
@@ -167,6 +166,8 @@ void sbus_to_rc(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl)
     rc_ctrl->rc.ch[3] -= RC_CH_VALUE_OFFSET;
     rc_ctrl->rc.ch[4] -= RC_CH_VALUE_OFFSET;
 
+    rc_trans();
+
     cprintf(&huart3,
 "**********\r\n\
 ch0:%d\r\n\
@@ -188,4 +189,26 @@ key:%d\r\n\
             rc_ctrl->mouse.x, rc_ctrl->mouse.y,rc_ctrl->mouse.z, rc_ctrl->mouse.press_l, rc_ctrl->mouse.press_r,
             rc_ctrl->key.v);
 
+
+}
+
+
+
+struct rc_data rc_datapack;
+
+void rc_trans(void)
+{
+  rc_datapack.ch0 = rc_ctrl.rc.ch[0];
+  rc_datapack.ch1 = rc_ctrl.rc.ch[1];
+  rc_datapack.ch2 = rc_ctrl.rc.ch[2];
+  rc_datapack.ch3 = rc_ctrl.rc.ch[3];
+  rc_datapack.ch4 = rc_ctrl.rc.ch[4];
+  rc_datapack.s1 = rc_ctrl.rc.s[0];
+  rc_datapack.s2 = rc_ctrl.rc.s[1];
+  rc_datapack.mouse_x = rc_ctrl.mouse.x;
+  rc_datapack.mouse_y = rc_ctrl.mouse.y;
+  rc_datapack.mouse_z = rc_ctrl.mouse.z;
+  rc_datapack.mouse_l = rc_ctrl.mouse.press_l;
+  rc_datapack.mouse_r = rc_ctrl.mouse.press_r;
+  rc_datapack.key = rc_ctrl.key.v;
 }

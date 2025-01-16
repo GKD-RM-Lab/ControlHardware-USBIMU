@@ -2,8 +2,14 @@
 #include "EKF_fusion.hpp"
 #include "LSM6DSO_Task.hpp"
 
+#include "remote_control.h"
+
 
 USB_VCPTask Usb;
+
+static const RC_ctrl_t *cali_RC;
+void send_imu_rc_pack(float *angle, float *angle_v, float *quaternion,
+                                        float *linear_acceleration);
 
 /*USB接收线程*/
 //TODO 一个奇怪的bug，必须调用EKF.plot_angle的串口阻塞发送EKF解算才正常，不然yaw疯狂飘
@@ -23,22 +29,27 @@ void USB_VCP_RX_Task(void *argument)
 void USB_VCP_TX_Task(void *argument)
 {
     //跳过开机时的零数据
-    while(1)
-    {
-        if(IMU.acceleration_mg[0] != 0) break;
-        vTaskDelay(1000);
-    }
+    // while(1)
+    // {
+    //     if(IMU.acceleration_mg[0] != 0) break;
+    //     vTaskDelay(1000);
+    // }
 
     while (1)
     {
         // Usb.imu_angle_send(EKF.Angle_fused, IMU.angular_rate_mdps);
-        // Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps, EKF.Quaternion ,EKF.linear_acceleration);
+        Usb.imu_angle_send_vofa(EKF.Angle_fused, IMU.angular_rate_mdps, EKF.Quaternion ,EKF.linear_acceleration);
+        // send_imu_rc_pack(EKF.Angle_fused, IMU.angular_rate_mdps, EKF.Quaternion ,EKF.linear_acceleration);
         vTaskDelay(1 * 10);         //1khz
 
-        /*发送hello*/
-        char msg[30] = "hello\n";
-        CDC_Transmit_FS((uint8_t *)msg, sizeof(msg));
+        // CDC_Transmit_FS((uint8_t *)&rc_datapack,sizeof(rc_datapack));
 
+        /*发送hello*/
+        // char msg[30] = "hello\n";
+       // CDC_Transmit_FS((uint8_t *)msg, sizeof(msg));
+
+
+       
         // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
         // IMU.plot_data();
         // IMU.print_data();
@@ -150,6 +161,8 @@ void USB_VCPTask::imu_angle_send(float *angle, float *angle_v)
     CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
 }
 
+
+
 void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v, float *quaternion,
                                         float *linear_acceleration)
 {
@@ -163,6 +176,21 @@ void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v, float *quate
         float roll_v;
         float quaternion[4];            //四元数
         float linear_acceleration[3];   //线加速度
+
+        // int ch0;
+        // int ch1;
+        // int ch2;
+        // int ch3;
+        // int ch4;
+        // int s1;
+        // int s2;
+        // int mouse_x;
+        // int mouse_y;
+        // int mouse_z;
+        // int mouse_l;
+        // int mouse_r;
+        // int key;
+
         uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
     }__attribute__((packed)) Frame_type;
     Frame_type frame;
@@ -173,6 +201,87 @@ void USB_VCPTask::imu_angle_send_vofa(float *angle, float *angle_v, float *quate
     frame.roll_v = angle_v[2]   /1000;
     frame.pitch_v = angle_v[1]  /1000;
     frame.yaw_v = angle_v[0]    /1000;
+
+    // frame.ch0 = rc_datapack.ch0;
+    // frame.ch1 = rc_datapack.ch1;
+    // frame.ch2 = rc_datapack.ch2;
+    // frame.ch3 = rc_datapack.ch3;
+    // frame.ch4 = rc_datapack.ch4;
+    // frame.s1 = rc_datapack.s1;
+    // frame.s2 = rc_datapack.s2;
+    // frame.mouse_x = rc_datapack.mouse_x;
+    // frame.mouse_z = rc_datapack.mouse_x;
+    // frame.mouse_l = rc_datapack.mouse_l;
+    // frame.mouse_r = rc_datapack.mouse_r;
+    // frame.key = rc_datapack.key;
+    
+    for(int i=0; i<4; i++){
+        frame.quaternion[i] = quaternion[i];
+    }
+    for(int i=0; i<3; i++){
+        frame.linear_acceleration[i] = linear_acceleration[i];
+    }
+
+    CDC_Transmit_FS((uint8_t *)&frame, sizeof(frame));
+}
+
+void send_imu_rc_pack(float *angle, float *angle_v, float *quaternion,
+                                        float *linear_acceleration)
+{
+    typedef struct
+    {
+        float yaw;
+        float pitch;
+        float roll;
+        float yaw_v;
+        float pitch_v;
+        float roll_v;
+        float quaternion[4];            //四元数
+        float linear_acceleration[3];   //线加速度
+
+        int ch0;
+        int ch1;
+        int ch2;
+        int ch3;
+        int ch4;
+        int s1;
+        int s2;
+        int mouse_x;
+        int mouse_y;
+        int mouse_z;
+        int mouse_l;
+        int mouse_r;
+        int key;
+
+        uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
+    }__attribute__((packed)) Frame_type;
+    Frame_type frame;
+
+    frame.yaw = angle[0];
+    frame.pitch = angle[1];
+    frame.roll = angle[2];
+    frame.roll_v = angle_v[2]   /1000;
+    frame.pitch_v = angle_v[1]  /1000;
+    frame.yaw_v = angle_v[0]    /1000;
+
+    // rc_trans();
+    // get_remote_control_point();
+
+    // cali_RC.
+
+    frame.ch0 = rc_datapack.ch0;
+    frame.ch1 = rc_datapack.ch1;
+    frame.ch2 = rc_datapack.ch2;
+    frame.ch3 = rc_datapack.ch3;
+    frame.ch4 = rc_datapack.ch4;
+    frame.s1 = rc_datapack.s1;
+    frame.s2 = rc_datapack.s2;
+    frame.mouse_x = rc_datapack.mouse_x;
+    frame.mouse_z = rc_datapack.mouse_x;
+    frame.mouse_l = rc_datapack.mouse_l;
+    frame.mouse_r = rc_datapack.mouse_r;
+    frame.key = rc_datapack.key;
+    
     for(int i=0; i<4; i++){
         frame.quaternion[i] = quaternion[i];
     }

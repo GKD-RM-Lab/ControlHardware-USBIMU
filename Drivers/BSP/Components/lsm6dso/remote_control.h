@@ -78,6 +78,25 @@ typedef struct
 
 } __packed RC_ctrl_t;
 
+
+struct rc_data
+{
+  int ch0;
+  int ch1;
+  int ch2;
+  int ch3;
+  int ch4;
+  int s1;
+  int s2;
+  int mouse_x;
+  int mouse_y;
+  int mouse_z;
+  int mouse_l;
+  int mouse_r;
+  int key;
+  /* data */
+};
+extern struct rc_data rc_datapack;
 /* ----------------------- Internal Data ----------------------------------- */
 
 extern void remote_control_init(void);
@@ -85,4 +104,5 @@ extern const RC_ctrl_t *get_remote_control_point(void);
 extern void slove_RC_lost(void);
 extern void slove_data_error(void);
 extern void sbus_to_rc(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl);
+extern void rc_trans(void);
 #endif
