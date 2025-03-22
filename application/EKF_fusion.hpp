@@ -41,6 +41,14 @@ private:
     uint8_t mfxstate[2432];
     MFX_knobs_t iKnobs;
     MFX_knobs_t *ipKnobs = &iKnobs;
+
+    //加速度计低通滤波
+    float accel_fliter_1[3] = {0.0f, 0.0f, 0.0f};
+    float accel_fliter_2[3] = {0.0f, 0.0f, 0.0f};
+    float accel_fliter_3[3] = {0.0f, 0.0f, 0.0f};
+    const float fliter_num[3] = {1.929454039488895f, -0.93178349823448126f, 0.002329458745586203f};
+
+
 public:
     float delta_time = 0.001;    //EKF计算周期(ms)
     uint32_t elapsed_time_us;    //上一次EFK计算耗时(us)

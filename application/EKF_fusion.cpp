@@ -90,6 +90,18 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     data_in.mag[1] = 0.0f;
     data_in.mag[2] = 0.0f;
 
+    /*加速度计低通滤波*/
+    accel_fliter_1[0] = accel_fliter_2[0];
+    accel_fliter_2[0] = accel_fliter_3[0];
+    accel_fliter_3[0] = accel_fliter_2[0] * fliter_num[0] + accel_fliter_1[0] * fliter_num[1] + data_in.acc[0] * fliter_num[2];
+    accel_fliter_1[1] = accel_fliter_2[1];
+    accel_fliter_2[1] = accel_fliter_3[1];
+    accel_fliter_3[1] = accel_fliter_2[1] * fliter_num[0] + accel_fliter_1[1] * fliter_num[1] + data_in.acc[1] * fliter_num[2];
+    accel_fliter_1[2] = accel_fliter_2[2];
+    accel_fliter_2[2] = accel_fliter_3[2];
+    accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + data_in.acc[2] * fliter_num[2];
+
+
     //计算EKF
     MotionFX_propagate(mfxstate, &data_out, &data_in, &delta_time);
     MotionFX_update(mfxstate, &data_out, &data_in, &delta_time, NULL);
