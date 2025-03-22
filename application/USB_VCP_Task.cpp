@@ -51,6 +51,9 @@ void USB_VCP_RX_Task(void *argument) {
     // cprintf(&huart3, "usb rx ok\n");
     EKF.plot_angle();
     vTaskDelay(100);
+
+    HAL_GPIO_WritePin(laser_GPIO_Port, laser_Pin, GPIO_PIN_SET);
+
   }
 }
 
