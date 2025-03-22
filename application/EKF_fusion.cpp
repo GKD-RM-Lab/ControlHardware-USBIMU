@@ -100,6 +100,10 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     accel_fliter_1[2] = accel_fliter_2[2];
     accel_fliter_2[2] = accel_fliter_3[2];
     accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + data_in.acc[2] * fliter_num[2];
+    for(int i=0; i<3; i++)
+    {
+        data_in.acc[i] = accel_fliter_3[i];
+    }
 
 
     //计算EKF
