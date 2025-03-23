@@ -151,26 +151,26 @@ void sbus_to_rc(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl) {
 
   rc_trans();
 
-  cprintf(&huart3, "**********\r\n\
-ch0:%d\r\n\
-ch1:%d\r\n\
-ch2:%d\r\n\
-ch3:%d\r\n\
-ch4:%d\r\n\
-s1:%d\r\n\
-s2:%d\r\n\
-mouse_x:%d\r\n\
-mouse_y:%d\r\n\
-mouse_z:%d\r\n\
-press_l:%d\r\n\
-press_r:%d\r\n\
-key:%d\r\n\
-**********\r\n",
-          rc_ctrl->rc.ch[0], rc_ctrl->rc.ch[1], rc_ctrl->rc.ch[2],
-          rc_ctrl->rc.ch[3], rc_ctrl->rc.ch[4], rc_ctrl->rc.s[0],
-          rc_ctrl->rc.s[1], rc_ctrl->mouse.x, rc_ctrl->mouse.y,
-          rc_ctrl->mouse.z, rc_ctrl->mouse.press_l, rc_ctrl->mouse.press_r,
-          rc_ctrl->key.v);
+//   cprintf(&huart3, "**********\r\n\
+// ch0:%d\r\n\
+// ch1:%d\r\n\
+// ch2:%d\r\n\
+// ch3:%d\r\n\
+// ch4:%d\r\n\
+// s1:%d\r\n\
+// s2:%d\r\n\
+// mouse_x:%d\r\n\
+// mouse_y:%d\r\n\
+// mouse_z:%d\r\n\
+// press_l:%d\r\n\
+// press_r:%d\r\n\
+// key:%d\r\n\
+// **********\r\n",
+//           rc_ctrl->rc.ch[0], rc_ctrl->rc.ch[1], rc_ctrl->rc.ch[2],
+//           rc_ctrl->rc.ch[3], rc_ctrl->rc.ch[4], rc_ctrl->rc.s[0],
+//           rc_ctrl->rc.s[1], rc_ctrl->mouse.x, rc_ctrl->mouse.y,
+//           rc_ctrl->mouse.z, rc_ctrl->mouse.press_l, rc_ctrl->mouse.press_r,
+//           rc_ctrl->key.v);
 }
 
 struct rc_data rc_datapack;

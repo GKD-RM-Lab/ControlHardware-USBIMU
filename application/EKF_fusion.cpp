@@ -4,6 +4,7 @@
 
 /*******用vTaskDelayUntil确保精确的执行周期********/
 EKF_fusion EKF;
+int cnt = 0;
 void EKF_fusion_Task(void *argument)
 {
     EKF.delta_time = 0.0012;    // 周期设置为1.2ms
@@ -27,6 +28,11 @@ void EKF_fusion_Task(void *argument)
 
     while (1)
     {
+        ++ cnt;
+        if(cnt >= 10) {
+            EKF.print_angle();
+            cnt=0;
+        }
         IMU.update();
 
         EKF.caculate(IMU.acceleration_mg, IMU.angular_rate_mdps);
@@ -48,6 +54,8 @@ void EKF_fusion::plot_angle()
         float yaw;
         float pitch;
         float roll;
+        float linear_accel[3];
+        float angular_rate[3];
         uint8_t tail[4]{0x00, 0x00, 0x80, 0x7f};
     }__attribute__((packed)) Frame_type;
     Frame_type frame;
@@ -55,6 +63,15 @@ void EKF_fusion::plot_angle()
     frame.yaw = Angle_fused[0];
     frame.pitch = Angle_fused[1];
     frame.roll = Angle_fused[2];
+
+    for(int i=0; i<3; i++)
+    {
+        frame.linear_accel[i] = IMU.acceleration_mg[i] * FROM_MG_TO_G * 100;
+        frame.angular_rate[i] = IMU.angular_rate_mdps[i] * FROM_MDPS_TO_DPS;
+    }
+
+    // cprintf(&huart3, "%f, %f, %f, %f, %f, %f, %f, %f, %f", frame.yaw, frame.pitch, frame.roll, frame.linear_accel[0], frame.linear_accel[1], frame.linear_accel[2],
+    //             frame.angular_rate[0], frame.angular_rate[1], frame.angular_rate[2]);
 
     HAL_UART_Transmit(&huart3, (uint8_t *)&frame, sizeof(frame), HAL_MAX_DELAY);    
 
@@ -64,9 +81,9 @@ void EKF_fusion::plot_angle()
 void EKF_fusion::print_angle()
 {
     int factor = 10;
-    cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d, time:%dus\n", (int)(Angle_fused[0]*factor),
-                    (int)(Angle_fused[1]*factor), (int)(Angle_fused[2]*factor), elapsed_time_us);
+    // cprintf(&huart3, "Yaw:%d, Pitch:%d, Roll:%d, time:%dus\n", (int)(Angle_fused[0]*factor),(int)(Angle_fused[1]*factor), (int)(Angle_fused[2]*factor), elapsed_time_us);
     
+    // cprintf(&huart3, "111111111111111111111111111\r\n");
 } 
 
 /*计算EKF*/
@@ -100,6 +117,11 @@ void EKF_fusion::caculate(float *acceleration_mg, float *angular_rate_mdps)
     accel_fliter_1[2] = accel_fliter_2[2];
     accel_fliter_2[2] = accel_fliter_3[2];
     accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + data_in.acc[2] * fliter_num[2];
+    // for(int i=0; i<3; i++)
+    // {
+    //     data_in.acc[i] = accel_fliter_3[i] * 0.8;
+    // }
+    // data_in.acc[0] = 0.0f;
     for(int i=0; i<3; i++)
     {
         data_in.acc[i] = accel_fliter_3[i];
@@ -148,13 +170,26 @@ void EKF_fusion::init()
 
     ipKnobs->gbias_acc_th_sc = GBIAS_ACC_TH_SC;
     ipKnobs->gbias_gyro_th_sc = GBIAS_GYRO_TH_SC;
+    ipKnobs->ATime = 10;
+    ipKnobs->FrTime = 0.05;
 
     ipKnobs->output_type = MFX_ENGINE_OUTPUT_ENU;
     ipKnobs->LMode = 1;
     ipKnobs->modx = DECIMATION;
+    
 
     MotionFX_setKnobs(mfxstate, ipKnobs);
+
     MotionFX_enable_6X(mfxstate, MFX_ENGINE_ENABLE);
     MotionFX_enable_9X(mfxstate, MFX_ENGINE_DISABLE);
+
+    // cprintf(&huart3, "gbias_acc_th_sc: %f, gbias_gyro_th_sc: %f\n", ipKnobs->gbias_acc_th_sc, ipKnobs->gbias_gyro_th_sc);
+    // cprintf(&huart3, "gbias_acc_th_sc: %f", iKnobs.gbias_acc_th_sc);
+    cprintf(&huart3, "gbias_acc_th_sc: %d\r\n", (int)(ipKnobs->gbias_acc_th_sc * 1000));
+    vTaskDelay(10);
+    cprintf(&huart3, "gbias_gyro_th_sc: %d\r\n", (int)(ipKnobs->gbias_gyro_th_sc * 1000));
+    vTaskDelay(10);
+
+
 }
 

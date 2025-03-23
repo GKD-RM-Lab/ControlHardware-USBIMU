@@ -128,9 +128,9 @@ void USB_VCPTask::instruct_decode(uint8_t *buf, uint8_t len) {
   case 0x02: // CMD_IMU_SET_FREQ
     memcpy(&imu_set_frame, buf, len);
     // 输出imu_set_frame全部信息
-    cprintf(&huart3, "head:%x, length:%d, cmd:%x, freq:%d, end:%x\n",
-            imu_set_frame.head, imu_set_frame.length, imu_set_frame.cmd,
-            imu_set_frame.freq, imu_set_frame.end);
+    // cprintf(&huart3, "head:%x, length:%d, cmd:%x, freq:%d, end:%x\n",
+    //         imu_set_frame.head, imu_set_frame.length, imu_set_frame.cmd,
+    //         imu_set_frame.freq, imu_set_frame.end);
 
     // todo:设置IMU发送频率
     break;
@@ -138,19 +138,19 @@ void USB_VCPTask::instruct_decode(uint8_t *buf, uint8_t len) {
   case 0x03: // CMD_PWM_SET
     memcpy(&pwm_set_frame, buf, len);
     // 输出pwm_set_frame全部信息
-    cprintf(&huart3, "head:%x, length:%d, cmd:%x, pwm:%d, %d, %d, %d, end:%x\n",
-            pwm_set_frame.head, pwm_set_frame.length, pwm_set_frame.cmd,
-            pwm_set_frame.pwm[0], pwm_set_frame.pwm[1], pwm_set_frame.pwm[2],
-            pwm_set_frame.pwm[3], pwm_set_frame.end);
+    // cprintf(&huart3, "head:%x, length:%d, cmd:%x, pwm:%d, %d, %d, %d, end:%x\n",
+    //         pwm_set_frame.head, pwm_set_frame.length, pwm_set_frame.cmd,
+    //         pwm_set_frame.pwm[0], pwm_set_frame.pwm[1], pwm_set_frame.pwm[2],
+    //         pwm_set_frame.pwm[3], pwm_set_frame.end);
 
     break;
 
   case 0x04: // CMD_LASER_SET
     memcpy(&laser_set_frame, buf, len);
     // 输出laser_set_frame全部信息
-    cprintf(&huart3, "head:%x, length:%d, cmd:%x, laser:%d, end:%x\n",
-            laser_set_frame.head, laser_set_frame.length, laser_set_frame.cmd,
-            laser_set_frame.laser, laser_set_frame.end);
+    // cprintf(&huart3, "head:%x, length:%d, cmd:%x, laser:%d, end:%x\n",
+    //         laser_set_frame.head, laser_set_frame.length, laser_set_frame.cmd,
+    //         laser_set_frame.laser, laser_set_frame.end);
 
     break;
 
