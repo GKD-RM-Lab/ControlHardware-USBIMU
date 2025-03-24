@@ -275,7 +275,8 @@ void send_imu_rc_pack(float *angle, float *angle_v, float *quaternion,
   frame_rc.s1 = rc_datapack.s1;
   frame_rc.s2 = rc_datapack.s2;
   frame_rc.mouse_x = rc_datapack.mouse_x;
-  frame_rc.mouse_z = rc_datapack.mouse_x;
+  frame_rc.mouse_y = rc_datapack.mouse_y;
+  frame_rc.mouse_z = rc_datapack.mouse_z;
   frame_rc.mouse_l = rc_datapack.mouse_l;
   frame_rc.mouse_r = rc_datapack.mouse_r;
   frame_rc.key = rc_datapack.key;
